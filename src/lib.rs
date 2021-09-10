@@ -159,6 +159,12 @@ mod tests {
         }
     }
 
+    impl Vector {
+        fn dot(self, rhs: Vector) -> f64 {
+            self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+        }
+    }
+
     #[test]
     fn sub_point_from_point_gives_vector() {
         let p1 = gen_point(10.0_f64, 9.0_f64, 8.0_f64, 7.0_f64);
@@ -210,6 +216,13 @@ mod tests {
         let expected = gen_point(20.0_f64, -18.0_f64, 16.0_f64, 2.0_f64);
         assert_eq!(result1, expected);
         assert_eq!(result2, expected);
+    }
+
+    #[test]
+    fn dot_product_vector() {
+        let v1 = gen_vector(2.0_f64, 3.0_f64, 4.0_f64);
+        let v2 = gen_vector(2.0_f64, 1.0_f64, 3.0_f64);
+        assert_eq!(v1.dot(v2), 19.0_f64);
     }
 
 }
