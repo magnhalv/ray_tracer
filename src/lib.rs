@@ -2,13 +2,14 @@
 mod tests {
 
     use std::cmp::PartialEq;
-    use std::ops::{Neg, Sub};
+    use std::ops::{Neg, Sub, Mul};
 
     fn is_approx_equal(lhs: f64, rhs: f64) -> bool {
         (lhs - rhs).abs() < 0.00001_f64
     }
 
-    #[derive(Debug)]
+    // TODO: Simplify operations by creating a "Tuple" trait?
+    #[derive(Copy, Clone, Debug)]
     struct Vector {
         x: f64,
         y: f64,
@@ -16,7 +17,7 @@ mod tests {
         w: f64,
     }
 
-    #[derive(Debug)]
+    #[derive(Copy, Clone, Debug)]
     struct Point {
         x: f64,
         y: f64,
@@ -132,6 +133,32 @@ mod tests {
         }
     }
 
+    impl Mul<f64> for Point {
+        type Output = Point;
+
+        fn mul(self, rhs: f64) -> Point {
+            Point {
+                x: self.x*rhs,
+                y: self.y*rhs,
+                z: self.z*rhs,
+                w: self.w*rhs,
+            }
+        }
+    }
+
+    impl Mul<Point> for f64 {
+        type Output = Point;
+
+        fn mul(self, rhs: Point) -> Point {
+            Point {
+                x: self*rhs.x,
+                y: self*rhs.y,
+                z: self*rhs.z,
+                w: self*rhs.w,
+            }
+        }
+    }
+
     #[test]
     fn sub_point_from_point_gives_vector() {
         let p1 = gen_point(10.0_f64, 9.0_f64, 8.0_f64, 7.0_f64);
@@ -174,4 +201,15 @@ mod tests {
         let expected = gen_point(-10.0_f64, 9.0_f64, -8.0_f64, -1.0_f64);
         assert_eq!(result, expected);
     }
+
+    #[test]
+    fn multiply_point_by_scalar() {
+        let point = gen_point(10.0_f64, -9.0_f64, 8.0_f64, 1.0_f64);
+        let result1 = point*2.0_f64;
+        let result2 = 2.0_f64*point;
+        let expected = gen_point(20.0_f64, -18.0_f64, 16.0_f64, 2.0_f64);
+        assert_eq!(result1, expected);
+        assert_eq!(result2, expected);
+    }
+
 }
