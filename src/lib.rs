@@ -4,10 +4,6 @@ mod tests {
     use std::cmp::PartialEq;
     use std::ops::{Neg, Sub, Mul};
 
-    fn is_approx_equal(lhs: f64, rhs: f64) -> bool {
-        (lhs - rhs).abs() < 0.00001_f64
-    }
-
     // TODO: Simplify operations by creating a "Tuple" trait?
     #[derive(Copy, Clone, Debug)]
     struct Vector {
@@ -77,33 +73,33 @@ mod tests {
 
     impl PartialEq for Point {
         fn eq(&self, other: &Point) -> bool {
-            is_approx_equal(self.x, other.x)
-                && is_approx_equal(self.y, other.y)
-                && is_approx_equal(self.z, other.z)
-                && is_approx_equal(self.w, other.w)
+            self.x == other.x
+                && self.y == other.y
+                && self.z == other.z
+                && self.w == other.w
         }
 
         fn ne(&self, other: &Point) -> bool {
-            !is_approx_equal(self.x, other.x)
-                || !is_approx_equal(self.y, other.y)
-                || !is_approx_equal(self.z, other.z)
-                || !is_approx_equal(self.w, other.w)
+            self.x != other.x
+                || self.y != other.y
+                || self.z != other.z
+                || self.w != other.w
         }
     }
 
     impl PartialEq for Vector {
         fn eq(&self, other: &Vector) -> bool {
-            is_approx_equal(self.x, other.x)
-                && is_approx_equal(self.y, other.y)
-                && is_approx_equal(self.z, other.z)
-                && is_approx_equal(self.w, other.w)
+            self.x == other.x
+                && self.y == other.y
+                && self.z == other.z
+                && self.w == other.w
         }
 
         fn ne(&self, other: &Vector) -> bool {
-            !is_approx_equal(self.x, other.x)
-                || !is_approx_equal(self.y, other.y)
-                || !is_approx_equal(self.z, other.z)
-                || !is_approx_equal(self.w, other.w)
+            self.x != other.x
+                || self.y != other.y
+                || self.z != other.z
+                || self.w != other.w
         }
     }
 
@@ -162,6 +158,10 @@ mod tests {
     impl Vector {
         fn dot(self, rhs: Vector) -> f64 {
             self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+        }
+
+        fn mag(self) -> f64 {
+            (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
         }
     }
 
@@ -223,6 +223,18 @@ mod tests {
         let v1 = gen_vector(2.0_f64, 3.0_f64, 4.0_f64);
         let v2 = gen_vector(2.0_f64, 1.0_f64, 3.0_f64);
         assert_eq!(v1.dot(v2), 19.0_f64);
+    }
+
+    #[test]
+    fn magnitude_vector() {
+        let v1 = gen_vector(1.0_f64, 0.0_f64, 0.0_f64);        
+        assert_eq!(v1.mag(), 1.0_f64);
+
+        let v2 = gen_vector(0.0_f64, 1.0_f64, 0.0_f64);        
+        assert_eq!(v2.mag(), 1.0_f64);
+
+        let v2 = gen_vector(1.0_f64, 2.0_f64, 3.0_f64);        
+        assert_eq!(v2.mag(), 14.0_f64.sqrt());
     }
 
 }
