@@ -163,6 +163,16 @@ mod tests {
         fn mag(self) -> f64 {
             (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
         }
+
+        fn normalize(self) -> Vector {
+            let mag = self.mag();
+            Vector{
+                x: self.x / mag, 
+                y:  self.y / mag,
+                z:  self.z / mag,
+                w: 0.0_f64
+            }
+        }
     }
 
     #[test]
@@ -235,6 +245,16 @@ mod tests {
 
         let v2 = gen_vector(1.0_f64, 2.0_f64, 3.0_f64);        
         assert_eq!(v2.mag(), 14.0_f64.sqrt());
+    }
+    
+    #[test]
+    fn normalize_vector() {
+        let v1 = gen_vector(1.0_f64, 0.0_f64, 0.0_f64);        
+        assert_eq!(v1.normalize(), gen_vector(1.0_f64, 0.0_f64, 0.0_f64));
+
+        let v2 = gen_vector(1.0_f64, 2.0_f64, 3.0_f64);        
+        assert_eq!(v2.normalize(), gen_vector(1.0_f64/14.0_f64.sqrt(), 2.0_f64/14.0_f64.sqrt(), 3.0_f64/14.0_f64.sqrt()));
+        assert_eq!(v2.normalize().mag(), 1.0_f64);
     }
 
 }
