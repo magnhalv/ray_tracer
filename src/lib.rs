@@ -173,6 +173,15 @@ mod tests {
                 w: 0.0_f64
             }
         }
+
+        fn cross(self, lhs: Vector) -> Vector {
+            Vector{
+                x: self.y * lhs.z - self.z * lhs.y, 
+                y:  self.z * lhs.x - self.x * lhs.z,
+                z:  self.x * lhs.y - self.y * lhs.x,
+                w: 0.0_f64
+            }
+        }
     }
 
     #[test]
@@ -257,4 +266,12 @@ mod tests {
         assert_eq!(v2.normalize().mag(), 1.0_f64);
     }
 
+    #[test]
+    fn cross_product_vector() {
+        let v1 = gen_vector(1.0_f64, 0.0_f64, 0.0_f64);        
+        let v2 = gen_vector(0.0_f64, 0.0_f64, 1.0_f64);        
+        assert_eq!(v2.cross(v1), gen_vector(0.0_f64, 1.0_f64, 0.0_f64));
+        assert_eq!(v1.cross(v2), gen_vector(0.0_f64, -1.0_f64, 0.0_f64));
+
+    }
 }
