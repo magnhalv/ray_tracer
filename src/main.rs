@@ -1,5 +1,6 @@
 mod geometry;
 mod color;
+mod canvas;
 
 fn main() {
     let mut position = geometry::Point::new(0.0_f64, 1.0_f64, 0.0_f64);
