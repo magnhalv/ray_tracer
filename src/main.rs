@@ -1,11 +1,12 @@
 mod geometry;
+mod color;
 
 fn main() {
-    let mut position = geometry::gen_point(0.0_f64, 1.0_f64, 0.0_f64);
-    let mut velocity = geometry::gen_vector(1.0_f64, 1.0_f64, 1.0_f64).normalize();
+    let mut position = geometry::Point::new(0.0_f64, 1.0_f64, 0.0_f64);
+    let mut velocity = geometry::Vector::new(1.0_f64, 1.0_f64, 1.0_f64).normalize();
 
-    let gravity = geometry::gen_vector(0.0_f64, -0.1_f64, 0.0_f64);
-    let wind = geometry::gen_vector(-0.01_f64, 0.0_f64, 0.0_f64);
+    let gravity = geometry::Vector::new(0.0_f64, -0.1_f64, 0.0_f64);
+    let wind = geometry::Vector::new(-0.01_f64, 0.0_f64, 0.0_f64);
 
     while position.y > 0_f64 {
         let (new_position, new_velocity) = tick(position, velocity, gravity, wind);
