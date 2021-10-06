@@ -1,9 +1,9 @@
 use crate::color::{Color};
 use std::fs;
 
-struct Canvas {
-    width: usize,
-    height: usize,
+pub struct Canvas {
+    pub width: usize,
+    pub height: usize,
     pixels: Box<[Color]>
 }
 
@@ -14,21 +14,13 @@ impl Canvas {
             pixels: vec![unsafe { std::mem::zeroed() }; width*height].into_boxed_slice()
         }
     }
-
-    pub fn set_pixel (mut self, x: usize, y: usize, color: Color) {        
-        self.pixels[y*self.width + x] = color;
-    }
-
-    pub fn get_pixel<'a>(&'a self, x: usize, y: usize) -> &'a Color {
-        &self.pixels[y*self.width + x]
-    }
 }
 
-fn get_pixel(canvas: &Canvas, x: usize, y: usize) -> Color {
+pub fn get_pixel(canvas: &Canvas, x: usize, y: usize) -> Color {
     canvas.pixels[y*canvas.width + x]
 }
 
-fn set_pixel (canvas: &mut Canvas, x: usize, y: usize, color: Color) {        
+pub fn set_pixel (canvas: &mut Canvas, x: usize, y: usize, color: Color) {        
     canvas.pixels[y*canvas.width + x] = color;
 }
 
@@ -55,7 +47,7 @@ fn canvas_to_ppm(canvas: &Canvas) -> String {
     result
 }
 
-fn canvas_to_file(canvas: &Canvas, file_name: String) {
+pub fn canvas_to_file(canvas: &Canvas, file_name: String) {
     let canvas = canvas_to_ppm(canvas);
     fs::write(file_name, canvas).expect("Unable to write cavas to ppm file.");
 }
@@ -91,8 +83,8 @@ fn set_pixel_test() {
     let x = 2;
     let y = 3;    
     set_pixel(&mut canvas, x, y, red);
-    let pixel = canvas.get_pixel(x, y);
-    assert_eq!(*pixel, red);
+    let pixel = get_pixel(&canvas, x, y);
+    assert_eq!(pixel, red);
 }
 
 #[test]

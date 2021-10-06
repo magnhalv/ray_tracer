@@ -90,6 +90,19 @@ impl Add<Vector> for Vector {
     }
 }
 
+impl Mul<f64> for Vector {
+    type Output = Vector;
+
+    fn mul(self, other: f64) -> Vector {
+        Vector {
+            x: self.x * other,
+            y: self.y * other,
+            z: self.z * other,
+            w: 0_f64,
+        }
+    }
+}
+
 impl PartialEq for Point {
     fn eq(&self, other: &Point) -> bool {
         self.x == other.x && self.y == other.y && self.z == other.z && self.w == other.w
