@@ -1,5 +1,6 @@
 use core::ops::Index;
 
+#[derive(Debug)]
 struct Matrix {
     x: usize,
     y: usize,
@@ -65,6 +66,20 @@ impl Index<[usize; 2]> for Matrix {
     }
 }
 
+impl PartialEq for Matrix {
+    fn eq(&self, other: &Matrix) -> bool {
+        let size = self.x * self.y;
+        let other_size = other.x * other.y;
+        size == other_size && self.values.iter().zip(other.values.iter()).all(|(a, b)| a == b)
+    }
+
+    fn ne(&self, other: &Matrix) -> bool {
+        let size = self.x * self.y;
+        let other_size = other.x * other.y;
+        size != other_size || self.values.iter().zip(other.values.iter()).any(|(a, b)| a != b)
+    }
+}
+
 #[test]
 fn init_matrix() {
     let matrix = Matrix::new(4, 4);    
@@ -80,6 +95,34 @@ fn init_2x2_matrix() {
     assert_eq!(matrix[[1, 1]], 1_f64);
     assert_eq!(matrix[[1, 2]], 2_f64);
     assert_eq!(matrix[[2, 1]], 3_f64);
-    assert_eq!(matrix[[2, 2]], 4_f64);
-    assert_eq!(matrix[[3, 3]], 4_f64);
+    assert_eq!(matrix[[2, 2]], 4_f64);    
+}
+
+#[test]
+fn matrix_equals() {
+    let matrix1 = Matrix::new2x2(
+        1_f64, 2_f64, 
+        3_f64, 4_f64
+    );
+
+    let matrix2 = Matrix::new2x2(
+        1_f64, 2_f64, 
+        3_f64, 4_f64
+    );
+
+    let matrix3 = Matrix::new3x3(
+        1_f64, 2_f64, 3_f64,
+        4_f64, 5_f64, 6_f64,
+        7_f64, 8_f64, 9_f64
+    );
+
+    let matrix4 = Matrix::new3x3(
+        1_f64, 2_f64, 3_f64,
+        4_f64, 5_f64, 6_f64,
+        7_f64, 8_f64, 9_f64
+    );
+    
+
+    assert_eq!(matrix1, matrix2);
+    assert_eq!(matrix3, matrix4);
 }
