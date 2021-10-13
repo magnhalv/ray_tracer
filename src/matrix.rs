@@ -1,4 +1,4 @@
-use core::ops::Index;
+use std::ops::{Add, Mul, Neg, Sub, Index, IndexMut};
 
 #[derive(Debug)]
 struct Matrix {
@@ -46,7 +46,7 @@ impl Matrix {
         m31: f64, m32: f64, m33: f64, m34: f64,
         m41: f64, m42: f64, m43: f64, m44: f64,
     ) -> Matrix {
-        let size = 3;
+        let size = 4;
         Matrix {
             x: size, 
             y: size,
@@ -66,6 +66,16 @@ impl Index<[usize; 2]> for Matrix {
     }
 }
 
+impl IndexMut<[usize; 2]> for Matrix {
+    
+    fn index_mut<'a>(&'a mut self, index: [usize; 2]) -> &'a mut f64 {            
+        debug_assert!(
+            (index[0] >= 1 && index[1] >= 1) && (index[0] <= self.y && index[1] <= self.x), 
+            "Out of range matrix {0}x{1} access attempted! [{2}, {3}]", self.y, self.x, index[0], index[1]);
+        self.values.index_mut((index[0]-1)*self.y + index[1]-1)
+    }
+}
+
 impl PartialEq for Matrix {
     fn eq(&self, other: &Matrix) -> bool {
         let size = self.x * self.y;
@@ -77,6 +87,24 @@ impl PartialEq for Matrix {
         let size = self.x * self.y;
         let other_size = other.x * other.y;
         size != other_size || self.values.iter().zip(other.values.iter()).any(|(a, b)| a != b)
+    }
+}
+
+impl Mul<Matrix> for Matrix {
+    type Output = Matrix;
+
+    fn mul(self, other: Matrix) -> Matrix {
+        let mut result = Matrix::new(self.y, other.x);
+        for i in 1..self.y+1 {
+            for j in 1..other.x+1 {
+                let mut dot_product = 0_f64;
+                for x in 1..self.x+1 {
+                    dot_product += self[[i, x]] * other[[x, j]]
+                }
+                result[[i, j]] = dot_product;
+            }
+        }
+        result
     }
 }
 
@@ -125,4 +153,32 @@ fn matrix_equals() {
 
     assert_eq!(matrix1, matrix2);
     assert_eq!(matrix3, matrix4);
+}
+
+#[test]
+fn matrix_multiplication() {
+    let matrix1 = Matrix::new4x4(
+        1_f64, 2_f64, 3_f64, 4_f64,
+        5_f64, 6_f64, 7_f64, 8_f64,
+        9_f64, 8_f64, 7_f64, 6_f64,
+        5_f64, 4_f64, 3_f64, 2_f64,
+    );
+
+    let matrix2 = Matrix::new4x4(
+        -2_f64, 1_f64, 2_f64, 3_f64,
+        3_f64, 2_f64, 1_f64, -1_f64,
+        4_f64, 3_f64, 6_f64, 5_f64,
+        1_f64, 2_f64, 7_f64, 8_f64,
+    );
+    
+
+    let expected = Matrix::new4x4(
+        20_f64, 22_f64, 50_f64, 48_f64,
+        44_f64, 54_f64, 114_f64, 108_f64,
+        40_f64, 58_f64, 110_f64, 102_f64,
+        16_f64, 26_f64, 46_f64, 42_f64,
+    );
+
+    let result = matrix1 * matrix2;
+    assert_eq!(expected, result);    
 }
