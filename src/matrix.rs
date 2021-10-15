@@ -1,9 +1,9 @@
 use std::ops::{Add, Mul, Neg, Sub, Index, IndexMut};
 
 #[derive(Debug)]
-struct Matrix {
-    x: usize,
-    y: usize,
+pub struct Matrix {
+    pub x: usize,
+    pub y: usize,
     values: Box<[f64]>
 }
 
@@ -108,6 +108,16 @@ impl Mul<Matrix> for Matrix {
     }
 }
 
+fn transpose(m: &Matrix) -> Matrix {
+    let mut result = Matrix::new(m.y, m.x);
+    for i in 1..m.y+1 {
+        for j in 1..m.x+1 {
+            result[[j, i]] = m[[i, j]];
+        }
+    }
+    result
+}
+
 #[test]
 fn init_matrix() {
     let matrix = Matrix::new(4, 4);    
@@ -181,4 +191,25 @@ fn matrix_multiplication() {
 
     let result = matrix1 * matrix2;
     assert_eq!(expected, result);    
+}
+
+#[test]
+fn matrix_transpose() {
+    let matrix = Matrix::new4x4(
+        0_f64, 9_f64, 1_f64, 0_f64,
+        9_f64, 8_f64, 0_f64, 8_f64,
+        1_f64, 8_f64, 5_f64, 3_f64,
+        0_f64, 0_f64, 5_f64, 8_f64,
+    );
+    
+
+    let expected = Matrix::new4x4(
+        0_f64, 9_f64, 1_f64, 0_f64,
+        9_f64, 8_f64, 8_f64, 0_f64,
+        1_f64, 0_f64, 5_f64, 5_f64,
+        0_f64, 8_f64, 3_f64, 8_f64,
+    ); 
+    
+    let result = transpose(&matrix);
+    assert_eq!(expected, result)
 }
