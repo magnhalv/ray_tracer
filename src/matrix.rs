@@ -118,6 +118,19 @@ fn submatrix3(m: &Matrix3, skip_i: usize, skip_j: usize) -> Matrix2 {
     result
 }
 
+fn minor3(m: &Matrix3, i: usize, j: usize) -> f32 {
+    let submatrix = submatrix3(m, i, j);
+    determinate2(&submatrix)
+}
+
+fn cofactor3(m: &Matrix3, i: usize, j: usize) -> f32 {
+    let minor = minor3(m, i, j);
+    if (i + j % 2) == 0 {
+        return minor
+    }
+    -minor
+}
+
 
 #[derive(Debug)]
 pub struct Matrix4 {
@@ -354,3 +367,28 @@ fn matrix_submatrix() {
 
     assert_eq!(expected2, submatrix4(&matrix2, 0, 3));
 } 
+
+#[test]
+fn matrix3_minor() {
+    let m = Matrix3::new(        
+        3_f32, 5_f32, 0_f32, 
+        2_f32, -1_f32, -7_f32,
+        6_f32, -1_f32, 5_f32,
+    );
+
+    assert_eq!(25_f32, minor3(&m, 1, 0));
+}
+
+#[test]
+fn matrix3_cofactor3() {
+    let m = Matrix3::new(        
+        3_f32, 5_f32, 0_f32, 
+        2_f32, -1_f32, -7_f32,
+        6_f32, -1_f32, 5_f32,
+    );
+
+    assert_eq!(-12_f32, minor3(&m, 0, 0));
+    assert_eq!(-12_f32, cofactor3(&m, 0, 0));
+    assert_eq!(25_f32, minor3(&m, 1, 0));
+    assert_eq!(-25_f32, cofactor3(&m, 1, 0));
+}
