@@ -6,6 +6,12 @@ pub struct Matrix2 {
 }
 
 impl Matrix2 {
+    pub fn new_empty() -> Matrix2 {
+        Matrix2 {
+            values: [0_f32; 4]
+        }
+    }
+
     pub fn new(
         m11: f32, m12: f32, 
         m21: f32, m22: f32
@@ -19,13 +25,13 @@ impl Matrix2 {
 impl Index<[usize; 2]> for Matrix2 {
     type Output = f32;
     fn index<'a>(&'a self, index: [usize; 2]) -> &'a f32 {            
-        &self.values[(index[0]-1)*2 + index[1]-1]
+        &self.values[(index[0]*2) + index[1]]
     }
 }
 
 impl IndexMut<[usize; 2]> for Matrix2 {    
     fn index_mut<'a>(&'a mut self, index: [usize; 2]) -> &'a mut f32 {            
-        self.values.index_mut((index[0]-1)*2 + index[1]-1)
+        self.values.index_mut((index[0]*2) + index[1])
     }
 }
 
@@ -39,6 +45,10 @@ impl PartialEq for Matrix2 {
     }
 }
 
+fn determinate2(m: &Matrix2) -> f32 {
+    m[[0,0]]*m[[1, 1]] - m[[0,1]]*m[[1,0]]
+}
+
 
 #[derive(Debug)]
 pub struct Matrix3 {
@@ -46,6 +56,12 @@ pub struct Matrix3 {
 }
 
 impl Matrix3 {
+    pub fn new_empty() -> Matrix3 {
+        Matrix3 {
+            values: [0_f32; 9]
+        }
+    }
+
     pub fn new(
         m11: f32, m12: f32, m13: f32,
         m21: f32, m22: f32, m23: f32,
@@ -60,13 +76,13 @@ impl Matrix3 {
 impl Index<[usize; 2]> for Matrix3 {
     type Output = f32;
     fn index<'a>(&'a self, index: [usize; 2]) -> &'a f32 {            
-        &self.values[(index[0]-1)*3 + index[1]-1]
+        &self.values[(index[0]*3) + index[1]]
     }
 }
 
 impl IndexMut<[usize; 2]> for Matrix3 {    
     fn index_mut<'a>(&'a mut self, index: [usize; 2]) -> &'a mut f32 {            
-        self.values.index_mut((index[0]-1)*3 + index[1]-1)
+        self.values.index_mut((index[0]*3) + index[1])
     }
 }
 
@@ -78,6 +94,28 @@ impl PartialEq for Matrix3 {
     fn ne(&self, other: &Matrix3) -> bool {
         self.values.iter().zip(other.values.iter()).any(|(a, b)| a != b)
     }
+}
+
+fn submatrix3(m: &Matrix3, skip_i: usize, skip_j: usize) -> Matrix2 {
+    let mut result = Matrix2::new_empty();
+    let mut new_i = 0;
+    let mut new_j = 0;
+    
+    for i in 0..3 {
+        if i == skip_i {
+            continue;
+        }
+        for j in 0..3 {
+            if j == skip_j {
+                continue;
+            }
+            result[[new_i, new_j]] = m[[i, j]];
+            new_j += 1;
+        }
+        new_i += 1;
+        new_j = 0;
+    }
+    result
 }
 
 
@@ -108,13 +146,13 @@ impl Matrix4 {
 impl Index<[usize; 2]> for Matrix4 {
     type Output = f32;
     fn index<'a>(&'a self, index: [usize; 2]) -> &'a f32 {            
-        &self.values[(index[0]-1)*4 + index[1]-1]
+        &self.values[(index[0])*4 + index[1]]
     }
 }
 
 impl IndexMut<[usize; 2]> for Matrix4 {    
     fn index_mut<'a>(&'a mut self, index: [usize; 2]) -> &'a mut f32 {            
-        self.values.index_mut((index[0]-1)*4 + index[1]-1)
+        self.values.index_mut((index[0])*4 + index[1])
     }
 }
 
@@ -128,16 +166,16 @@ impl PartialEq for Matrix4 {
     }
 }
 
-
 impl Mul<Matrix4> for Matrix4 {
     type Output = Matrix4;
 
     fn mul(self, other: Matrix4) -> Matrix4 {
+        // TODO: SIMD this?
         let mut result = Matrix4::new_empty();
-        for i in 1..5 {
-            for j in 1..5 {
+        for i in 0..4 {
+            for j in 0..4 {
                 let mut dot_product = 0_f32;
-                for x in 1..5 {
+                for x in 0..4 {
                     dot_product += self[[i, x]] * other[[x, j]]
                 }
                 result[[i, j]] = dot_product;
@@ -147,12 +185,34 @@ impl Mul<Matrix4> for Matrix4 {
     }
 }
 
-fn transpose(m: &Matrix4) -> Matrix4 {
+fn transpose4(m: &Matrix4) -> Matrix4 {
     let mut result = Matrix4::new_empty();
-    for i in 1..5 {
-        for j in 1..5 {
+    for i in 0..4 {
+        for j in 0..4 {
             result[[j, i]] = m[[i, j]];
         }
+    }
+    result
+}
+
+fn submatrix4(m: &Matrix4, skip_i: usize, skip_j: usize) -> Matrix3 {
+    let mut result = Matrix3::new_empty();
+    let mut new_i = 0;
+    let mut new_j = 0;
+    
+    for i in 0..4 {
+        if i == skip_i {
+            continue;
+        }
+        for j in 0..4 {
+            if j == skip_j {
+                continue;
+            }
+            result[[new_i, new_j]] = m[[i, j]];
+            new_j += 1;
+        }
+        new_i += 1;
+        new_j = 0;
     }
     result
 }
@@ -169,10 +229,10 @@ fn init_2x2_matrix() {
         1_f32, 2_f32, 
         3_f32, 4_f32
     );
-    assert_eq!(matrix[[1, 1]], 1_f32);
-    assert_eq!(matrix[[1, 2]], 2_f32);
-    assert_eq!(matrix[[2, 1]], 3_f32);
-    assert_eq!(matrix[[2, 2]], 4_f32);    
+    assert_eq!(matrix[[0, 0]], 1_f32);
+    assert_eq!(matrix[[0, 1]], 2_f32);
+    assert_eq!(matrix[[1, 0]], 3_f32);
+    assert_eq!(matrix[[1, 1]], 4_f32);    
 }
 
 #[test]
@@ -249,6 +309,48 @@ fn matrix_transpose() {
         0_f32, 8_f32, 3_f32, 8_f32,
     ); 
     
-    let result = transpose(&matrix);
+    let result = transpose4(&matrix);
     assert_eq!(expected, result)
 }
+
+#[test]
+fn matrix_determinant() {
+    let matrix = Matrix2::new(
+        1_f32, 5_f32,
+        -3_f32, 2_f32
+    );
+
+    let result = determinate2(&matrix);
+    assert_eq!(17_f32, result);
+}
+ 
+#[test]
+fn matrix_submatrix() {
+    let matrix1 = Matrix3::new(
+        1_f32, 2_f32, 3_f32,
+        4_f32, 5_f32, 6_f32,
+        7_f32, 8_f32, 9_f32
+    );
+
+    let expected1 = Matrix2::new(
+        4_f32, 6_f32,
+        7_f32, 9_f32
+    );
+
+    assert_eq!(expected1, submatrix3(&matrix1, 0, 1)); 
+
+    let matrix2 = Matrix4::new(
+        1_f32, 2_f32, 3_f32, 4_f32, 
+        5_f32, 6_f32, 7_f32, 8_f32, 
+        9_f32, 10_f32, 11_f32, 12_f32,
+        13_f32, 14_f32, 15_f32, 16_f32
+    );
+
+    let expected2 = Matrix3::new(        
+        5_f32, 6_f32, 7_f32, 
+        9_f32, 10_f32, 11_f32,
+        13_f32, 14_f32, 15_f32,
+    );
+
+    assert_eq!(expected2, submatrix4(&matrix2, 0, 3));
+} 
