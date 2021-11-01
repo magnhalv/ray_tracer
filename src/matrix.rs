@@ -131,6 +131,15 @@ fn cofactor3(m: &Matrix3, i: usize, j: usize) -> f32 {
     -minor
 }
 
+fn determinant3(m: &Matrix3) -> f32 {
+    let mut result = 0_f32;
+    for j in 0..3 {
+        let cofactor = cofactor3(m, 0, j);
+        result += m[[0, j]] * cofactor;
+    }
+    result
+}
+
 
 #[derive(Debug)]
 pub struct Matrix4 {
@@ -391,4 +400,33 @@ fn matrix3_cofactor3() {
     assert_eq!(-12_f32, cofactor3(&m, 0, 0));
     assert_eq!(25_f32, minor3(&m, 1, 0));
     assert_eq!(-25_f32, cofactor3(&m, 1, 0));
+}
+
+#[test]
+fn matrix3_determinant() {
+    let m = Matrix3::new(        
+        1_f32, 2_f32, 6_f32, 
+        -5_f32, 8_f32, -4_f32,
+        2_f32, 6_f32, 4_f32,
+    );
+
+    assert_eq!(56_f32, cofactor3(&m, 0, 0));
+    assert_eq!(12_f32, cofactor3(&m, 0, 1));
+    assert_eq!(-46_f32, cofactor3(&m, 0, 2));
+    assert_eq!(-196_f32, determinant3(&m));
+}
+
+#[test]
+fn matrix4_determinant() {
+    let m = Matrix4::new(        
+        -2_f32, -8_f32, 3_f32, 5_f32, 
+        -3_f32, 1_f32, 7_f32, 3_f32,
+        1_f32, 2_f32, -9_f32, 6_f32,
+        -6_f32, 7_f32, 7_f32, -9_f32
+    );
+
+    assert_eq!(56_f32, cofactor4(&m, 0, 0));
+    assert_eq!(12_f32, cofactor4(&m, 0, 1));
+    assert_eq!(-46_f32, cofactor4(&m, 0, 2));
+    assert_eq!(-196_f32, determinant3(&m));
 }
