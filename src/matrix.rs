@@ -45,7 +45,7 @@ impl PartialEq for Matrix2 {
     }
 }
 
-fn determinate2(m: &Matrix2) -> f32 {
+fn determinant2(m: &Matrix2) -> f32 {
     m[[0,0]]*m[[1, 1]] - m[[0,1]]*m[[1,0]]
 }
 
@@ -120,7 +120,7 @@ fn submatrix3(m: &Matrix3, skip_i: usize, skip_j: usize) -> Matrix2 {
 
 fn minor3(m: &Matrix3, i: usize, j: usize) -> f32 {
     let submatrix = submatrix3(m, i, j);
-    determinate2(&submatrix)
+    determinant2(&submatrix)
 }
 
 fn cofactor3(m: &Matrix3, i: usize, j: usize) -> f32 {
@@ -239,6 +239,28 @@ fn submatrix4(m: &Matrix4, skip_i: usize, skip_j: usize) -> Matrix3 {
     result
 }
 
+fn minor4(m: &Matrix4, i: usize, j: usize) -> f32 {
+    let submatrix = submatrix4(m, i, j);
+    determinant3(&submatrix)
+}
+
+fn cofactor4(m: &Matrix4, i: usize, j: usize) -> f32 {
+    let minor = minor4(m, i, j);
+    if (i + j % 2) == 0 {
+        return minor
+    }
+    -minor
+}
+
+fn determinant4(m: &Matrix4) -> f32 {
+    let mut result = 0_f32;
+    for j in 0..4 {
+        let cofactor = cofactor4(m, 0, j);
+        result += m[[0, j]] * cofactor;
+    }
+    result
+}
+
 #[test]
 fn init_matrix() {
     let matrix = Matrix4::new_empty();
@@ -342,7 +364,7 @@ fn matrix_determinant() {
         -3_f32, 2_f32
     );
 
-    let result = determinate2(&matrix);
+    let result = determinant2(&matrix);
     assert_eq!(17_f32, result);
 }
  
@@ -425,8 +447,8 @@ fn matrix4_determinant() {
         -6_f32, 7_f32, 7_f32, -9_f32
     );
 
-    assert_eq!(56_f32, cofactor4(&m, 0, 0));
-    assert_eq!(12_f32, cofactor4(&m, 0, 1));
-    assert_eq!(-46_f32, cofactor4(&m, 0, 2));
-    assert_eq!(-196_f32, determinant3(&m));
+    assert_eq!(690_f32, cofactor4(&m, 0, 0));
+    assert_eq!(447_f32, cofactor4(&m, 0, 1));
+    assert_eq!(210_f32, cofactor4(&m, 0, 2));
+    assert_eq!(-4071_f32, determinant4(&m));
 }
