@@ -4,6 +4,15 @@ mod canvas;
 mod matrix;
 
 fn main() {
+    let m = matrix::Matrix4::new(        
+        -5_f32, 2_f32, 6_f32, -8_f32, 
+        1_f32, -5_f32, 1_f32, 8_f32,
+        7_f32, 7_f32, -6_f32, -7_f32,
+        1_f32, -3_f32, 7_f32, 4_f32
+    );
+
+    let m_inversed = matrix::inverse4(&m);
+
     let mut position = geometry::Point::new(0.0_f64, 1.0_f64, 0.0_f64);
     let mut velocity = geometry::Vector::new(1.0_f64, 1.8_f64, 0.0_f64).normalize() * 11.25;
 

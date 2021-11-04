@@ -1,5 +1,7 @@
 use std::ops::{Add, Mul, Neg, Sub, Index, IndexMut};
 
+// TODO: At later time, look into how matrices are constructed. E.g. would it be worthwile to send in a pointer to put resulting matrices.
+
 #[derive(Debug)]
 pub struct Matrix2 {
     values: [f32; 4]
@@ -125,7 +127,7 @@ fn minor3(m: &Matrix3, i: usize, j: usize) -> f32 {
 
 fn cofactor3(m: &Matrix3, i: usize, j: usize) -> f32 {
     let minor = minor3(m, i, j);
-    if (i + j % 2) == 0 {
+    if ((i + j) % 2) == 0 {
         return minor
     }
     -minor
@@ -179,19 +181,23 @@ impl IndexMut<[usize; 2]> for Matrix4 {
 }
 
 impl PartialEq for Matrix4 {
+    
+
     fn eq(&self, other: &Matrix4) -> bool {
-        self.values.iter().zip(other.values.iter()).all(|(a, b)| a == b)
+        let epsilon = 0.0001_f32;
+        self.values.iter().zip(other.values.iter()).all(|(a, b)| (a - b).abs() < epsilon)
     }
 
     fn ne(&self, other: &Matrix4) -> bool {
-        self.values.iter().zip(other.values.iter()).any(|(a, b)| a != b)
+        let epsilon = 0.0001_f32;
+        self.values.iter().zip(other.values.iter()).any(|(a, b)| (a - b).abs() > epsilon)
     }
 }
 
-impl Mul<Matrix4> for Matrix4 {
+impl <'a, 'b> Mul<&'b Matrix4> for &'a Matrix4 {
     type Output = Matrix4;
 
-    fn mul(self, other: Matrix4) -> Matrix4 {
+    fn mul(self, other: &'b Matrix4) -> Matrix4 {
         // TODO: SIMD this?
         let mut result = Matrix4::new_empty();
         for i in 0..4 {
@@ -246,17 +252,34 @@ fn minor4(m: &Matrix4, i: usize, j: usize) -> f32 {
 
 fn cofactor4(m: &Matrix4, i: usize, j: usize) -> f32 {
     let minor = minor4(m, i, j);
-    if (i + j % 2) == 0 {
+    if ((i + j) % 2) == 0 {
         return minor
     }
     -minor
 }
+// + - + - - + - + + - + - - + - +
+// + - + -
+// - + - +
+// + - + -
+// - + - +
 
 fn determinant4(m: &Matrix4) -> f32 {
     let mut result = 0_f32;
     for j in 0..4 {
         let cofactor = cofactor4(m, 0, j);
         result += m[[0, j]] * cofactor;
+    }
+    result
+}
+
+pub fn inverse4(m: &Matrix4) -> Matrix4 {
+    let mut result = Matrix4::new_empty();
+    let determinant = determinant4(&m);
+    for i in 0..4 {
+        for j in 0..4 {
+            let cofactor = cofactor4(&m, i, j);
+            result[[j, i]] = cofactor / determinant;
+        }
     }
     result
 }
@@ -332,8 +355,12 @@ fn matrix_multiplication() {
         16_f32, 26_f32, 46_f32, 42_f32,
     );
 
-    let result = matrix1 * matrix2;
+    let result = &matrix1 * &matrix2;
     assert_eq!(expected, result);    
+}
+
+fn is_invertible(m: &Matrix4) -> bool {
+    determinant4(&m) != 0_f32
 }
 
 #[test]
@@ -451,4 +478,71 @@ fn matrix4_determinant() {
     assert_eq!(447_f32, cofactor4(&m, 0, 1));
     assert_eq!(210_f32, cofactor4(&m, 0, 2));
     assert_eq!(-4071_f32, determinant4(&m));
+}
+
+#[test]
+fn matrix4_is_invertibile() {
+    let m = Matrix4::new(        
+        6_f32, 4_f32, 4_f32, 4_f32, 
+        5_f32, 5_f32, 7_f32, 6_f32,
+        4_f32, -9_f32, 3_f32, -7_f32,
+        9_f32, 1_f32, 7_f32, -6_f32
+    );
+
+    assert_eq!(true, is_invertible(&m));
+
+    let m = Matrix4::new(        
+        -4_f32, 2_f32, -2_f32, -3_f32, 
+        9_f32, 6_f32, 2_f32, 6_f32,
+        0_f32, -5_f32, 1_f32, -5_f32,
+        0_f32, 0_f32, 0_f32, 0_f32
+    );
+
+    assert_eq!(false, is_invertible(&m));
+}
+
+#[test]
+fn matrix4_invert() {
+    let m = Matrix4::new(        
+        -5_f32, 2_f32, 6_f32, -8_f32, 
+        1_f32, -5_f32, 1_f32, 8_f32,
+        7_f32, 7_f32, -6_f32, -7_f32,
+        1_f32, -3_f32, 7_f32, 4_f32
+    );
+
+    let m_inversed = inverse4(&m);
+
+    let expected_inverse = Matrix4::new(
+        0.21805_f32, 0.45113_f32, 0.24060_f32, -0.04511_f32,
+        -0.80827_f32, -1.45677_f32, -0.44361_f32, 0.52068_f32,
+        -0.07895_f32, -0.22368_f32, -0.05263_f32, 0.19737_f32,
+        -0.52256_f32, -0.81391_f32, -0.30075_f32, 0.30639_f32
+    );
+
+    assert_eq!(532_f32, determinant4(&m));
+    assert_eq!(expected_inverse, m_inversed);
+    assert_eq!(-160_f32, cofactor4(&m, 2, 3));
+    assert_eq!(-160_f32/532_f32, m_inversed[[3, 2]]);
+    assert_eq!(105_f32, cofactor4(&m, 3, 2));
+    assert_eq!(105_f32/532_f32, m_inversed[[2, 3]]);
+
+    let a = Matrix4::new(        
+        3_f32, -9_f32, 7_f32, 3_f32, 
+        3_f32, -8_f32, 2_f32, -9_f32,
+        -4_f32, 4_f32, 4_f32, 1_f32,
+        -6_f32, 5_f32, -1_f32, 1_f32
+    );
+
+    let b = Matrix4::new(        
+        8_f32, 2_f32, 2_f32, 2_f32, 
+        3_f32, -1_f32, 7_f32, 0_f32,
+        7_f32, 0_f32, 5_f32, 4_f32,
+        6_f32, -2_f32, 0_f32, 5_f32
+    );
+
+    let c = &a * &b;
+    let inverse_b = inverse4(&b);
+    let expect_a = &c * &inverse_b;
+
+    assert_eq!(a, expect_a);
 }
