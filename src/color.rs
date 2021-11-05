@@ -4,9 +4,9 @@ use std::cmp::PartialEq;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Color {
-    pub red: f64,
-    pub green: f64,
-    pub blue: f64,
+    pub red: f32,
+    pub green: f32,
+    pub blue: f32,
 }
 
 impl fmt::Display for Color {
@@ -49,10 +49,10 @@ impl Add<Color> for Color {
     }
 }
 
-impl Mul<f64> for Color {
+impl Mul<f32> for Color {
     type Output = Color;
 
-    fn mul(self, rhs: f64) -> Color {
+    fn mul(self, rhs: f32) -> Color {
         Color {
             red: self.red * rhs,
             green: self.green * rhs,
@@ -61,7 +61,7 @@ impl Mul<f64> for Color {
     }
 }
 
-impl Mul<Color> for f64 {
+impl Mul<Color> for f32 {
     type Output = Color;
 
     fn mul(self, rhs: Color) -> Color {
@@ -86,7 +86,7 @@ impl Mul<Color> for Color {
 }
 
 impl Color {
-    pub fn new(red: f64, green: f64, blue: f64) -> Color {
+    pub fn new(red: f32, green: f32, blue: f32) -> Color {
         Color {
             red: red,
             green: green,
@@ -97,28 +97,28 @@ impl Color {
 
 #[test]
 fn add_colors() {
-    let c1 = Color::new(10.0_f64, 9.0_f64, 8.0_f64);
-    let c2 = Color::new(1.0_f64, 2.0_f64, 3.0_f64);
+    let c1 = Color::new(10.0_f32, 9.0_f32, 8.0_f32);
+    let c2 = Color::new(1.0_f32, 2.0_f32, 3.0_f32);
     let result = c1 - c2;
-    let expected = Color::new(9.0_f64, 7.0_f64, 5.0_f64);
+    let expected = Color::new(9.0_f32, 7.0_f32, 5.0_f32);
     assert_eq!(result, expected);
 }
 
 #[test]
 fn sub_colors() {
-    let c1 = Color::new(10.0_f64, 9.0_f64, 8.0_f64);
-    let c2 = Color::new(1.0_f64, 2.0_f64, 3.0_f64);
+    let c1 = Color::new(10.0_f32, 9.0_f32, 8.0_f32);
+    let c2 = Color::new(1.0_f32, 2.0_f32, 3.0_f32);
     let result = c1 - c2;
-    let expected = Color::new(9.0_f64, 7.0_f64, 5.0_f64);
+    let expected = Color::new(9.0_f32, 7.0_f32, 5.0_f32);
     assert_eq!(result, expected);
 }
 
 #[test]
 fn multiply_color_by_scalar() {
-    let color = Color::new(10.0_f64, -9.0_f64, 8.0_f64);
-    let result1 = color * 2.0_f64;
-    let result2 = 2.0_f64 * color;
-    let expected = Color::new(20.0_f64, -18.0_f64, 16.0_f64);
+    let color = Color::new(10.0_f32, -9.0_f32, 8.0_f32);
+    let result1 = color * 2.0_f32;
+    let result2 = 2.0_f32 * color;
+    let expected = Color::new(20.0_f32, -18.0_f32, 16.0_f32);
     assert_eq!(result1, expected);
     assert_eq!(result2, expected);
 }
@@ -126,9 +126,9 @@ fn multiply_color_by_scalar() {
 
 #[test]
 fn multiply_color_by_color() {
-    let c1 = Color::new(10.0_f64, -9.0_f64, 8.0_f64);
-    let c2 = Color::new(2.0_f64, 3.0_f64, 1.0_f64);
+    let c1 = Color::new(10.0_f32, -9.0_f32, 8.0_f32);
+    let c2 = Color::new(2.0_f32, 3.0_f32, 1.0_f32);
     let result = c1 * c2;
-    let expected = Color::new(20.0_f64, -27.0_f64, 8.0_f64);
+    let expected = Color::new(20.0_f32, -27.0_f32, 8.0_f32);
     assert_eq!(result, expected);
 }

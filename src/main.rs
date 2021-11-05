@@ -2,27 +2,19 @@ mod geometry;
 mod color;
 mod canvas;
 mod matrix;
+mod transformation;
 
 fn main() {
-    let m = matrix::Matrix4::new(        
-        -5_f32, 2_f32, 6_f32, -8_f32, 
-        1_f32, -5_f32, 1_f32, 8_f32,
-        7_f32, 7_f32, -6_f32, -7_f32,
-        1_f32, -3_f32, 7_f32, 4_f32
-    );
+    let mut position = geometry::Tuple::new_point(0.0_f32, 1.0_f32, 0.0_f32);
+    let mut velocity = geometry::Tuple::new_vector(1.0_f32, 1.8_f32, 0.0_f32).normalize() * 11.25;
 
-    let m_inversed = matrix::inverse4(&m);
-
-    let mut position = geometry::Point::new(0.0_f64, 1.0_f64, 0.0_f64);
-    let mut velocity = geometry::Vector::new(1.0_f64, 1.8_f64, 0.0_f64).normalize() * 11.25;
-
-    let gravity = geometry::Vector::new(0.0_f64, -0.1_f64, 0.0_f64);
-    let wind = geometry::Vector::new(-0.01_f64, 0.0_f64, 0.0_f64);
+    let gravity = geometry::Tuple::new_vector(0.0_f32, -0.1_f32, 0.0_f32);
+    let wind = geometry::Tuple::new_vector(-0.01_f32, 0.0_f32, 0.0_f32);
 
     let mut canvas = canvas::Canvas::new(1200, 550);
-    let color = color::Color::new(1.0_f64, 0_f64, 0_f64);
+    let color = color::Color::new(1.0_f32, 0_f32, 0_f32);
 
-    while position.y > 0_f64 {
+    while position.y > 0_f32 {
         let height = canvas.height;
         canvas::set_pixel(&mut canvas, position.x as usize, height - position.y as usize, color);
 
@@ -34,7 +26,7 @@ fn main() {
     canvas::canvas_to_file(&canvas, "test.ppm".to_string());
 }
 
-fn tick(position: geometry::Point, velocity: geometry::Vector, gravity: geometry::Vector, wind: geometry::Vector) -> (geometry::Point, geometry::Vector) {
+fn tick(position: geometry::Tuple, velocity: geometry::Tuple, gravity: geometry::Tuple, wind: geometry::Tuple) -> (geometry::Tuple, geometry::Tuple) {
     let resulting_position = position + velocity;
     let resulting_velocity = velocity + gravity + wind;
     (resulting_position, resulting_velocity)

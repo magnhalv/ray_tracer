@@ -1,4 +1,5 @@
 use std::ops::{Add, Mul, Neg, Sub, Index, IndexMut};
+use crate::geometry::{Tuple};
 
 // TODO: At later time, look into how matrices are constructed. E.g. would it be worthwile to send in a pointer to put resulting matrices.
 
@@ -210,6 +211,20 @@ impl <'a, 'b> Mul<&'b Matrix4> for &'a Matrix4 {
             }
         }
         result
+    }
+}
+
+impl <'a, 'b> Mul<&'b Tuple> for &'a Matrix4 {
+    type Output = Tuple;
+
+    fn mul(self, other: &'b Tuple) -> Tuple {
+        // TODO: SIMD this?        
+       let x = self[[0, 0]] * other.x + self[[0, 1]] * other.y + self[[0, 2]] * other.z + self[[0, 3]] * other.w;
+       let y = self[[1, 0]] * other.x + self[[1, 1]] * other.y + self[[1, 2]] * other.z + self[[1, 3]] * other.w;
+       let z = self[[2, 0]] * other.x + self[[2, 1]] * other.y + self[[2, 2]] * other.z + self[[2, 3]] * other.w;
+       let w = self[[3, 0]] * other.x + self[[3, 1]] * other.y + self[[3, 2]] * other.z + self[[3, 3]] * other.w;
+       let result = Tuple::new(x, y, z, w);
+       result
     }
 }
 

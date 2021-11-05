@@ -30,9 +30,9 @@ fn canvas_to_ppm(canvas: &Canvas) -> String {
         let mut line = String::with_capacity(canvas.width*3 + (canvas.width*3-1));
         for x in 0..canvas.width {
             let color = get_pixel(canvas, x, y);
-            let r = limit((color.red * 255.0_f64) as i32, 0, 255);
-            let g = limit((color.green * 255.0_f64) as i32, 0, 255);
-            let b = limit((color.blue * 255.0_f64) as i32, 0, 255);
+            let r = limit((color.red * 255.0_f32) as i32, 0, 255);
+            let g = limit((color.green * 255.0_f32) as i32, 0, 255);
+            let b = limit((color.blue * 255.0_f32) as i32, 0, 255);
 
             if x == 0 {
                 line.push_str(&format!("{0} {1} {2}", r, g, b))
@@ -68,7 +68,7 @@ fn init_canvas() {
     assert_eq!(canvas.width, 5);
     assert_eq!(canvas.height, 10);
 
-    let black = Color::new(0_f64, 0_f64, 0_f64);
+    let black = Color::new(0_f32, 0_f32, 0_f32);
     for c in canvas.pixels.to_vec() {
         assert_eq!(c, black);
     }
@@ -79,7 +79,7 @@ fn init_canvas() {
 fn set_pixel_test() {
     let mut canvas = Canvas::new(5, 10);    
 
-    let red = Color::new(1_f64, 0_f64, 0_f64);
+    let red = Color::new(1_f32, 0_f32, 0_f32);
     let x = 2;
     let y = 3;    
     set_pixel(&mut canvas, x, y, red);
@@ -90,9 +90,9 @@ fn set_pixel_test() {
 #[test]
 fn to_ppm() {
     let mut canvas = Canvas::new(5, 3);    
-    set_pixel(&mut canvas, 0, 0, Color::new(1.5_f64, 0_f64, 0_f64));
-    set_pixel(&mut canvas, 2, 1, Color::new(0_f64, 0.5_f64, 0_f64));
-    set_pixel(&mut canvas, 4, 2, Color::new(-0.5_f64, 0_f64, 1_f64));
+    set_pixel(&mut canvas, 0, 0, Color::new(1.5_f32, 0_f32, 0_f32));
+    set_pixel(&mut canvas, 2, 1, Color::new(0_f32, 0.5_f32, 0_f32));
+    set_pixel(&mut canvas, 4, 2, Color::new(-0.5_f32, 0_f32, 1_f32));
     let result = canvas_to_ppm(&canvas);
     let expected = 
 "P3
