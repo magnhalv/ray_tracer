@@ -47,6 +47,27 @@ pub fn rotation_z(r: f32) -> Matrix4 {
     )
 }
 
+//          d
+//          d
+//          d
+//          d
+// m m m m  
+// a a a a
+// b b b b 
+// c c c c 
+//
+//
+
+
+pub fn shearing(x_to_y: f32, x_to_z: f32, y_to_x: f32, y_to_z: f32, z_to_x: f32, z_to_y: f32) -> Matrix4 {
+    Matrix4::new(
+        1_f32,    x_to_y,  x_to_z,  0_f32,
+        y_to_x,   1_f32,   y_to_z,  0_f32,
+        z_to_x,   z_to_y,  1_f32,   0_f32,
+        0_f32,    0_f32,   0_f32,   1_f32,
+    )
+}
+
 #[test]
 fn translate_point() {
     let transform = translation(5_f32, -3_f32, 2_f32);
@@ -107,4 +128,47 @@ fn rotation_z_axis() {
 
     assert_eq!(&half_quarter * &point, Tuple::new_point(-2_f32.sqrt()/2_f32, 2_f32.sqrt()/2_f32, 0_f32));
     assert_eq!(&full_quarter * &point, Tuple::new_point(-1_f32, 0_f32, 0_f32));    
+}
+
+#[test]
+fn shearing_x_in_proportion_to_y() {
+    let transform = shearing(1_f32, 0_f32, 0_f32, 0_f32, 0_f32, 0_f32);
+    let point = Tuple::new_point(2_f32, 3_f32, 4_f32);
+    assert_eq!(&transform * &point, Tuple::new_point(5_f32, 3_f32, 4_f32));
+}
+
+#[test]
+fn shearing_x_in_proportion_to_z() {
+    let transform = shearing(0_f32, 1_f32, 0_f32, 0_f32, 0_f32, 0_f32);
+    let point = Tuple::new_point(2_f32, 3_f32, 4_f32);
+    assert_eq!(&transform * &point, Tuple::new_point(6_f32, 3_f32, 4_f32));
+}
+
+#[test]
+fn shearing_y_in_proportion_to_x() {
+    let transform = shearing(0_f32, 0_f32, 1_f32, 0_f32, 0_f32, 0_f32);
+    let point = Tuple::new_point(2_f32, 3_f32, 4_f32);
+    assert_eq!(&transform * &point, Tuple::new_point(2_f32, 5_f32, 4_f32));
+}
+
+#[test]
+fn shearing_y_in_proportion_to_z() {
+    let transform = shearing(0_f32, 0_f32, 0_f32, 1_f32, 0_f32, 0_f32);
+    let point = Tuple::new_point(2_f32, 3_f32, 4_f32);
+    assert_eq!(&transform * &point, Tuple::new_point(2_f32, 7_f32, 4_f32));
+}
+
+#[test]
+fn shearing_z_in_proportion_to_x() {
+    let transform = shearing(0_f32, 0_f32, 0_f32, 0_f32, 1_f32, 0_f32);
+    let point = Tuple::new_point(2_f32, 3_f32, 4_f32);
+    assert_eq!(&transform * &point, Tuple::new_point(2_f32, 3_f32, 6_f32));
+}
+
+
+#[test]
+fn shearing_z_in_proportion_to_y() {
+    let transform = shearing(0_f32, 0_f32, 0_f32, 0_f32, 0_f32, 1_f32);
+    let point = Tuple::new_point(2_f32, 3_f32, 4_f32);
+    assert_eq!(&transform * &point, Tuple::new_point(2_f32, 3_f32, 7_f32));
 }
