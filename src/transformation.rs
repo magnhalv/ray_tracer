@@ -2,6 +2,37 @@ use crate::geometry::{Tuple};
 use crate::matrix::{Matrix4, inverse4};
 use std::f32::consts::{PI};
 
+impl Matrix4 {
+    pub fn identity() -> Matrix4 {
+        Matrix4::new(
+            1_f32, 0_f32, 0_f32, 0_f32,
+            0_f32, 1_f32, 0_f32, 0_f32,
+            0_f32, 0_f32, 1_f32, 0_f32,
+            0_f32, 0_f32, 0_f32, 1_f32,
+        )   
+    }
+
+    pub fn translate(self, x: f32, y: f32, z: f32) -> Matrix4 {
+        &self * &translation(x, y, z)
+    }
+
+    pub fn scale(self, x: f32, y: f32, z: f32) -> Matrix4 {
+        &self * &scaling(x, y, z)
+    }
+
+    pub fn rotate_x(self, r: f32) -> Matrix4 {
+        &self * &rotation_x(r)
+    }
+
+    pub fn rotate_y(self, r: f32) -> Matrix4 {
+        &self * &rotation_y(r)
+    }
+
+    pub fn rotate_z(self, r: f32) -> Matrix4 {
+        &self * &rotation_z(r)
+    }
+}
+
 pub fn translation(x: f32, y: f32, z: f32) -> Matrix4 {
     Matrix4::new(
         1_f32, 0_f32, 0_f32, x,
@@ -180,4 +211,16 @@ fn chaining_transformations() {
     let full_transform = &(&C * &B) * &A;
     let point5 = &full_transform * &point;
     assert_eq!(point5, Tuple::new_point(15_f32, 0_f32, 7_f32));
-}
+} 
+
+#[test]
+fn chaining_fluent_transformations() {
+    let point = Tuple::new_point(1_f32, 0_f32, 1_f32);
+    
+    let full_transform = Matrix4::identity()
+        .translate(10_f32, 5_f32, 7_f32)
+        .scale(5_f32, 5_f32, 5_f32)
+        .rotate_x(PI/2_f32);
+    let point = &full_transform * &point;
+    assert_eq!(point, Tuple::new_point(15_f32, 0_f32, 7_f32));
+} 
