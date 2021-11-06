@@ -4,9 +4,9 @@ use std::cmp::PartialEq;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Color {
-    pub red: f32,
-    pub green: f32,
-    pub blue: f32,
+    pub red: f32, // 255
+    pub green: f32, // 255
+    pub blue: f32, // 255
 }
 
 impl fmt::Display for Color {
