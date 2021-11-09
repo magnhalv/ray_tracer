@@ -195,20 +195,20 @@ fn shearing_z_in_proportion_to_y() {
 #[test]
 fn chaining_transformations() {
     let point = Tuple::new_point(1_f32, 0_f32, 1_f32);
-    let A = rotation_x(PI/2_f32);
-    let B = scaling(5_f32, 5_f32, 5_f32);
-    let C = translation(10_f32, 5_f32, 7_f32);
+    let a = rotation_x(PI/2_f32);
+    let b = scaling(5_f32, 5_f32, 5_f32);
+    let c = translation(10_f32, 5_f32, 7_f32);
 
-    let point2 = &A * &point;
+    let point2 = &a * &point;
     assert_eq!(point2, Tuple::new_point(1_f32, -1_f32, 0_f32));
 
-    let point3 = &B * &point2;
+    let point3 = &b * &point2;
     assert_eq!(point3, Tuple::new_point(5_f32, -5_f32, 0_f32));
 
-    let point4 = &C * &point3;
+    let point4 = &c * &point3;
     assert_eq!(point4, Tuple::new_point(15_f32, 0_f32, 7_f32));
 
-    let full_transform = &(&C * &B) * &A;
+    let full_transform = &(&c * &b) * &a;
     let point5 = &full_transform * &point;
     assert_eq!(point5, Tuple::new_point(15_f32, 0_f32, 7_f32));
 } 

@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Neg, Sub, Index, IndexMut};
+use std::ops::{Mul, Index, IndexMut};
 use crate::geometry::{Tuple};
 
 // TODO: At later time, look into how matrices are constructed. E.g. would it be worthwile to send in a pointer to put resulting matrices.
@@ -287,6 +287,7 @@ fn determinant4(m: &Matrix4) -> f32 {
     result
 }
 
+// TODO: Make this member function?
 pub fn inverse4(m: &Matrix4) -> Matrix4 {
     let mut result = Matrix4::new_empty();
     let determinant = determinant4(&m);

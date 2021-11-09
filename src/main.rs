@@ -3,6 +3,7 @@ mod color;
 mod canvas;
 mod matrix;
 mod transformation;
+mod ray;
 
 use matrix::Matrix4;
 use geometry::Tuple;
