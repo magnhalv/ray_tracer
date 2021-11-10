@@ -29,9 +29,9 @@ pub fn intersects(sphere: &Sphere, ray: &Ray) -> Vec<Intersection> {
     let ray = transform(&ray, &sphere.inverse_transformation);
     let mut result = Vec::new();
     let sphere_to_ray = ray.origin - Tuple::new_point(0_f32, 0_f32, 0_f32);
-    let a = ray.direction.dot(ray.direction);
-    let b = 2_f32 * ray.direction.dot(sphere_to_ray);
-    let c = sphere_to_ray.dot(sphere_to_ray) - 1_f32;
+    let a = ray.direction.dot(&ray.direction);
+    let b = 2_f32 * ray.direction.dot(&sphere_to_ray);
+    let c = sphere_to_ray.dot(&sphere_to_ray) - 1_f32;
 
     let discriminant = b.powf(2_f32) - 4_f32 * a * c;
 

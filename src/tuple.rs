@@ -135,13 +135,13 @@ impl Tuple {
         Tuple { x, y, z, w: 0_f32 }
     }
 
-    pub fn dot(self, rhs: Tuple) -> f32 {
+    pub fn dot(self, rhs: &Tuple) -> f32 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
     pub fn mag(self) -> f32 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
-    }
+    }    
 
     pub fn normalize(self) -> Tuple {
         let mag = self.mag();
@@ -161,6 +161,10 @@ impl Tuple {
             w: 0.0_f32,
         }
     }
+}
+
+pub fn reflect(incomming: &Tuple, surface: &Tuple) -> Tuple {    
+    *incomming - *surface * 2_f32 * incomming.dot(surface)
 }
 
 #[test]
@@ -240,7 +244,7 @@ fn multiply_point_by_scalar() {
 fn dot_product_vector() {
     let v1 = Tuple::new_vector(2.0_f32, 3.0_f32, 4.0_f32);
     let v2 = Tuple::new_vector(2.0_f32, 1.0_f32, 3.0_f32);
-    assert_eq!(v1.dot(v2), 19.0_f32);
+    assert_eq!(v1.dot(&v2), 19.0_f32);
 }
 
 #[test]
@@ -278,4 +282,18 @@ fn cross_product_vector() {
     let v2 = Tuple::new_vector(0.0_f32, 0.0_f32, 1.0_f32);
     assert_eq!(v2.cross(v1), Tuple::new_vector(0.0_f32, 1.0_f32, 0.0_f32));
     assert_eq!(v1.cross(v2), Tuple::new_vector(0.0_f32, -1.0_f32, 0.0_f32));
+}
+
+#[test]
+fn reflect_vector_at_45deg() {
+    let v = Tuple::new_vector(1_f32, -1_f32, 0_f32);
+    let normal = Tuple::new_vector(0_f32, 1_f32, 0_f32);
+    assert_eq!(reflect(&v, &normal), Tuple::new_vector(1_f32, 1_f32, 0_f32));
+}
+
+#[test]
+fn reflect_vector_at_slanted_surface() {
+    let v = Tuple::new_vector(0_f32, -1_f32, 0_f32);
+    let normal = Tuple::new_vector(2_f32.sqrt()/2_f32, 2_f32.sqrt()/2_f32, 0_f32);
+    assert_eq!(reflect(&v, &normal), Tuple::new_vector(1_f32, 0_f32, 0_f32));
 }
