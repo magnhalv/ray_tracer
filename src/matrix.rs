@@ -166,6 +166,10 @@ impl Matrix4 {
             values: [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]
         }
     }
+
+    pub fn transpose(&self) -> Matrix4 {
+        return transpose4(self);
+    }
 }
 
 impl Index<[usize; 2]> for Matrix4 {
@@ -397,7 +401,9 @@ fn matrix_transpose() {
     ); 
     
     let result = transpose4(&matrix);
-    assert_eq!(expected, result)
+    assert_eq!(result, expected);
+    let result = matrix.transpose();
+    assert_eq!(result, expected);
 }
 
 #[test]
