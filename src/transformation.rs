@@ -1,4 +1,4 @@
-use crate::geometry::{Tuple};
+use crate::tuple::{Tuple};
 use crate::matrix::{Matrix4, inverse4};
 use std::f32::consts::{PI};
 

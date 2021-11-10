@@ -1,5 +1,5 @@
 use std::ops::{Mul, Index, IndexMut};
-use crate::geometry::{Tuple};
+use crate::tuple::{Tuple};
 
 // TODO: At later time, look into how matrices are constructed. E.g. would it be worthwile to send in a pointer to put resulting matrices.
 

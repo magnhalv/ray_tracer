@@ -1,4 +1,4 @@
-mod geometry;
+mod tuple;
 mod color;
 mod canvas;
 mod matrix;
@@ -7,7 +7,7 @@ mod ray;
 mod sphere;
 
 use matrix::{Matrix4};
-use geometry::Tuple;
+use tuple::Tuple;
 use ray::{Ray, intersects};
 use sphere::Sphere;
 
