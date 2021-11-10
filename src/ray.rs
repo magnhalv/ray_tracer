@@ -1,21 +1,11 @@
 use crate::geometry::Tuple;
 use crate::matrix::{Matrix4, inverse4};
 use crate::transformation::{{translation, scaling}};
+use crate::sphere::Sphere;
 
 pub struct Ray {
-    origin: Tuple,
-    direction: Tuple,
-}
-
-pub struct Sphere {
-    pub id: u32,
-    pub transformation: Matrix4
-}
-
-impl Sphere {
-    pub fn new(id: u32) -> Sphere {
-        Sphere { id, transformation: Matrix4::identity() }
-    }
+    pub origin: Tuple,
+    pub direction: Tuple,
 }
 
 pub struct Intersection {
@@ -36,7 +26,7 @@ pub fn intersects(sphere: &Sphere, ray: &Ray) -> Vec<Intersection> {
     // dot((tB + (A-C), tB + (A - C))) = r^2
     // <=>
     // t^2 dot(B, B) + 2t dot(B, A-C) + dot(A-C, A-C) - r^2 = 0
-    let ray = transform(&ray, &inverse4(&sphere.transformation));
+    let ray = transform(&ray, &sphere.inverse_transformation);
     let mut result = Vec::new();
     let sphere_to_ray = ray.origin - Tuple::new_point(0_f32, 0_f32, 0_f32);
     let a = ray.direction.dot(ray.direction);
@@ -273,7 +263,7 @@ fn intersecting_a_scaled_sphere_with_a_ray() {
     };
 
     let mut sphere = Sphere::new(1);
-    sphere.transformation = scaling(2_f32, 2_f32, 2_f32);
+    sphere.set_transformation(scaling(2_f32, 2_f32, 2_f32));
     let xs = intersects(&sphere, &ray);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 3_f32);
