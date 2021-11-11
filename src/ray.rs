@@ -9,13 +9,16 @@ pub struct Ray {
 }
 
 pub struct Intersection {
-    obj_id: u32,
-    t: f32,
+    pub obj_id: u32,
+    pub t: f32,
 }
 
-pub fn position(ray: &Ray, t: f32) -> Tuple {
-    ray.origin + (t * ray.direction)
+impl Ray {
+    pub fn position(&self, t: f32) -> Tuple {
+        self.origin + (t * self.direction)
+    }
 }
+
 
 pub fn intersects(sphere: &Sphere, ray: &Ray) -> Vec<Intersection> {
     // A point on a spehere exists so that
@@ -70,14 +73,14 @@ fn ray_position() {
         direction: Tuple::new_vector(1_f32, 0_f32, 0_f32),
     };
 
-    assert_eq!(position(&ray, 0_f32), Tuple::new_point(2_f32, 3_f32, 4_f32));
-    assert_eq!(position(&ray, 1_f32), Tuple::new_point(3_f32, 3_f32, 4_f32));
+    assert_eq!(ray.position(0_f32), Tuple::new_point(2_f32, 3_f32, 4_f32));
+    assert_eq!(ray.position(1_f32), Tuple::new_point(3_f32, 3_f32, 4_f32));
     assert_eq!(
-        position(&ray, -1_f32),
+        ray.position(-1_f32),
         Tuple::new_point(1_f32, 3_f32, 4_f32)
     );
     assert_eq!(
-        position(&ray, 2.5_f32),
+        ray.position(2.5_f32),
         Tuple::new_point(4.5_f32, 3_f32, 4_f32)
     );
 }
