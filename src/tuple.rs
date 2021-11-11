@@ -1,12 +1,8 @@
+use crate::math::float_equal;
 use std::cmp::PartialEq;
 use std::fmt;
 use std::ops::{Add, Mul, Neg, Sub};
 use std::ops::{Index, IndexMut};
-
-fn float_equal(a: f32, b: f32) -> bool {
-    let max_diff = 0.00001_f32;
-    a == b || (a - b).abs() <= max_diff
-}
 
 #[derive(Copy, Clone, Debug)]
 pub struct Tuple {
@@ -163,8 +159,8 @@ impl Tuple {
     }
 }
 
-pub fn reflect(incomming: &Tuple, surface: &Tuple) -> Tuple {    
-    *incomming - *surface * 2_f32 * incomming.dot(surface)
+pub fn reflect(incomming: &Tuple, normal: &Tuple) -> Tuple {    
+    *incomming - *normal * 2_f32 * incomming.dot(normal)
 }
 
 #[test]

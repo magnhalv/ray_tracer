@@ -1,3 +1,4 @@
+use crate::math::float_equal;
 use std::fmt;
 use std::ops::{Add, Mul, Sub};
 use std::cmp::PartialEq;
@@ -17,11 +18,11 @@ impl fmt::Display for Color {
 
 impl PartialEq for Color {
     fn eq(&self, other: &Color) -> bool {
-        self.red == other.red && self.green == other.green && self.blue == other.blue
+        float_equal(self.red, other.red) && float_equal(self.green, other.green) && float_equal(self.blue, other.blue)
     }
 
     fn ne(&self, other: &Color) -> bool {
-        self.red != other.red || self.green != other.green || self.blue != other.blue
+        !float_equal(self.red, other.red) || !float_equal(self.green, other.green) || !float_equal(self.blue, other.blue)
     }
 }
 

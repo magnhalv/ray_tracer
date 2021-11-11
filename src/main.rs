@@ -5,6 +5,8 @@ mod matrix;
 mod transformation;
 mod ray;
 mod sphere;
+mod lighting;
+mod math;
 
 use matrix::{Matrix4};
 use tuple::Tuple;

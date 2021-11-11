@@ -1,16 +1,17 @@
-use core::f32::consts::PI;
+use crate::lighting::Material;
 use crate::Tuple;
 use crate::matrix::{{Matrix4, inverse4}};
 
 pub struct Sphere {
     pub id: u32,
     pub transformation: Matrix4,
-    pub inverse_transformation: Matrix4
+    pub inverse_transformation: Matrix4,
+    pub material: Material
 }
 
 impl Sphere {
     pub fn new(id: u32) -> Sphere {
-        Sphere { id, transformation: Matrix4::identity(), inverse_transformation: Matrix4::identity() }
+        Sphere { id, transformation: Matrix4::identity(), inverse_transformation: Matrix4::identity(), material: Material::default() }
     }
 
     pub fn set_transformation(&mut self, t: Matrix4) {
@@ -73,7 +74,7 @@ fn the_normal_on_a_sphere_translated_sphere() {
 #[test]
 fn the_normal_on_a_sphere_transformed_sphere() {
     let mut sphere = Sphere::new(1);
-    sphere.set_transformation(Matrix4::identity().scale(1_f32, 0.5_f32, 1_f32).rotate_z(PI/5_f32));
+    sphere.set_transformation(Matrix4::identity().scale(1_f32, 0.5_f32, 1_f32).rotate_z(core::f32::consts::PI/5_f32));
     let normal = sphere.normal_at(Tuple::new_point(0_f32, 2_f32.sqrt()/2_f32, -2_f32.sqrt()/2_f32));
     assert_eq!(normal, Tuple::new_vector(0_f32, 0.97014_f32, -0.24254_f32));
 }
