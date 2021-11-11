@@ -8,19 +8,27 @@ pub struct Ray {
     pub direction: Tuple,
 }
 
-pub struct Intersection {
-    pub obj_id: u32,
+pub struct Intersection<'a> {
+    pub obj: &'a Sphere,
     pub t: f32,
 }
 
 impl Ray {
+    pub fn new(origin: Tuple, direction: Tuple) -> Ray {
+        Ray { origin, direction }
+    }
+
+    pub fn default() -> Ray {
+        Ray::new(Tuple::point(0_f32, 0_f32, -5_f32), Tuple::vector(0_f32, 0_f32, 1_f32))
+    }
+
     pub fn position(&self, t: f32) -> Tuple {
         self.origin + (t * self.direction)
     }
 }
 
 
-pub fn intersects(sphere: &Sphere, ray: &Ray) -> Vec<Intersection> {
+pub fn intersects<'a>(sphere: &'a Sphere, ray: &Ray) -> Vec<Intersection<'a>> {
     // A point on a spehere exists so that
     // (x - x0)^2 + (y - y0)^2 + (z - z0)^2 = r^2
     // ||P - C||^2 = r^2
@@ -31,7 +39,7 @@ pub fn intersects(sphere: &Sphere, ray: &Ray) -> Vec<Intersection> {
     // t^2 dot(B, B) + 2t dot(B, A-C) + dot(A-C, A-C) - r^2 = 0
     let ray = transform(&ray, &sphere.inverse_transformation);
     let mut result = Vec::new();
-    let sphere_to_ray = ray.origin - Tuple::new_point(0_f32, 0_f32, 0_f32);
+    let sphere_to_ray = ray.origin - Tuple::point(0_f32, 0_f32, 0_f32);
     let a = ray.direction.dot(&ray.direction);
     let b = 2_f32 * ray.direction.dot(&sphere_to_ray);
     let c = sphere_to_ray.dot(&sphere_to_ray) - 1_f32;
@@ -42,12 +50,12 @@ pub fn intersects(sphere: &Sphere, ray: &Ray) -> Vec<Intersection> {
         return result;
     }
     let i1 = Intersection {
-        obj_id: sphere.id,
+        obj: &sphere,
         t: (-b - discriminant.sqrt()) / (2_f32 * a),
     };
 
     let i2 = Intersection {
-        obj_id: sphere.id,
+        obj: &sphere,
         t: (-b + discriminant.sqrt()) / (2_f32 * a),
     };
     result.push(i1);
@@ -55,41 +63,63 @@ pub fn intersects(sphere: &Sphere, ray: &Ray) -> Vec<Intersection> {
     result
 }
 
-fn hit(intersections: &Vec<Intersection>) -> Option<&Intersection> {
+fn hit<'a>(intersections: &'a Vec<Intersection<'a>>) -> Option<&'a Intersection<'a>> {
     intersections
         .iter()
         .filter(|i| i.t >= 0_f32)
         .min_by(|a, b| a.t.partial_cmp(&b.t).unwrap())
+    
 }
 
 fn transform(ray: &Ray, transformation: &Matrix4) -> Ray {
     Ray { origin: transformation * &ray.origin, direction: transformation * &ray.direction }
 }
 
+pub struct Computation<'a> {
+    pub object: &'a Sphere,
+    pub t: f32,
+    pub point: Tuple,
+    pub eye_direction: Tuple,
+    pub surface_normalv:  Tuple,    
+}
+
+ pub fn prepare_computations<'a>(i: &'a Intersection, ray: &Ray) -> Computation<'a> {
+    let point = ray.position(i.t);
+    let eye_direction = -ray.direction;
+    let surface_normalv = i.obj.normal_at(&point);
+    Computation {        
+        object: i.obj,
+        t: i.t,
+        point,
+        eye_direction,
+        surface_normalv        
+    }
+} 
+
 #[test]
 fn ray_position() {
     let ray = Ray {
-        origin: Tuple::new_point(2_f32, 3_f32, 4_f32),
-        direction: Tuple::new_vector(1_f32, 0_f32, 0_f32),
+        origin: Tuple::point(2_f32, 3_f32, 4_f32),
+        direction: Tuple::vector(1_f32, 0_f32, 0_f32),
     };
 
-    assert_eq!(ray.position(0_f32), Tuple::new_point(2_f32, 3_f32, 4_f32));
-    assert_eq!(ray.position(1_f32), Tuple::new_point(3_f32, 3_f32, 4_f32));
+    assert_eq!(ray.position(0_f32), Tuple::point(2_f32, 3_f32, 4_f32));
+    assert_eq!(ray.position(1_f32), Tuple::point(3_f32, 3_f32, 4_f32));
     assert_eq!(
         ray.position(-1_f32),
-        Tuple::new_point(1_f32, 3_f32, 4_f32)
+        Tuple::point(1_f32, 3_f32, 4_f32)
     );
     assert_eq!(
         ray.position(2.5_f32),
-        Tuple::new_point(4.5_f32, 3_f32, 4_f32)
+        Tuple::point(4.5_f32, 3_f32, 4_f32)
     );
 }
 
 #[test]
 fn ray_intesects_a_sphere_at_two_points() {
     let ray = Ray {
-        origin: Tuple::new_point(0_f32, 0_f32, -5_f32),
-        direction: Tuple::new_vector(0_f32, 0_f32, 1_f32),
+        origin: Tuple::point(0_f32, 0_f32, -5_f32),
+        direction: Tuple::vector(0_f32, 0_f32, 1_f32),
     };
 
     let sphere = Sphere::new(1);
@@ -103,8 +133,8 @@ fn ray_intesects_a_sphere_at_two_points() {
 #[test]
 fn ray_intesects_a_sphere_at_a_tangent() {
     let ray = Ray {
-        origin: Tuple::new_point(0_f32, 1_f32, -5_f32),
-        direction: Tuple::new_vector(0_f32, 0_f32, 1_f32),
+        origin: Tuple::point(0_f32, 1_f32, -5_f32),
+        direction: Tuple::vector(0_f32, 0_f32, 1_f32),
     };
 
     let sphere = Sphere::new(1);
@@ -118,8 +148,8 @@ fn ray_intesects_a_sphere_at_a_tangent() {
 #[test]
 fn ray_interspects_but_misses_sphere() {
     let ray = Ray {
-        origin: Tuple::new_point(0_f32, 2_f32, -5_f32),
-        direction: Tuple::new_vector(0_f32, 0_f32, 1_f32),
+        origin: Tuple::point(0_f32, 2_f32, -5_f32),
+        direction: Tuple::vector(0_f32, 0_f32, 1_f32),
     };
 
     let sphere = Sphere::new(1);
@@ -131,8 +161,8 @@ fn ray_interspects_but_misses_sphere() {
 #[test]
 fn ray_intersects_when_it_originiates_inside_sphere() {
     let ray = Ray {
-        origin: Tuple::new_point(0_f32, 0_f32, 0_f32),
-        direction: Tuple::new_vector(0_f32, 0_f32, 1_f32),
+        origin: Tuple::point(0_f32, 0_f32, 0_f32),
+        direction: Tuple::vector(0_f32, 0_f32, 1_f32),
     };
 
     let sphere = Sphere::new(1);
@@ -146,8 +176,8 @@ fn ray_intersects_when_it_originiates_inside_sphere() {
 #[test]
 fn ray_intersects_when_sphere_is_behind_ray() {
     let ray = Ray {
-        origin: Tuple::new_point(0_f32, 0_f32, 5_f32),
-        direction: Tuple::new_vector(0_f32, 0_f32, 1_f32),
+        origin: Tuple::point(0_f32, 0_f32, 5_f32),
+        direction: Tuple::vector(0_f32, 0_f32, 1_f32),
     };
 
     let sphere = Sphere::new(1);
@@ -162,12 +192,12 @@ fn ray_intersects_when_sphere_is_behind_ray() {
 fn hit_when_all_intersections_have_positive_t() {
     let s = Sphere::new(1);
     let i1 = Intersection {
-        obj_id: s.id,
+        obj: &s,
         t: 1_f32,
     };
 
     let i2 = Intersection {
-        obj_id: s.id,
+        obj: &s,
         t: 2_f32,
     };
 
@@ -186,19 +216,19 @@ fn hit_when_some_intersections_have_negative_t() {
 
     let intersections = vec![
         Intersection {
-            obj_id: s.id,
+            obj: &s,
             t: -1_f32,
         },
         Intersection {
-            obj_id: s.id,
+            obj: &s,
             t: 4_f32,
         },
         Intersection {
-            obj_id: s.id,
+            obj: &s,
             t: 4_f32,
         },
         Intersection {
-            obj_id: s.id,
+            obj: &s,
             t: -4_f32,
         },
     ];
@@ -216,11 +246,11 @@ fn hit_when_all_intersections_have_negative_t() {
 
     let intersections = vec![
         Intersection {
-            obj_id: s.id,
+            obj: &s,
             t: -1_f32,
         },
         Intersection {
-            obj_id: s.id,
+            obj: &s,
             t: -4_f32,
         },
     ];
@@ -232,37 +262,37 @@ fn hit_when_all_intersections_have_negative_t() {
 #[test]
 fn translate_a_ray() {
     let ray = Ray {
-        origin: Tuple::new_point(1_f32, 2_f32, 3_f32),
-        direction: Tuple::new_vector(0_f32, 1_f32, 0_f32)
+        origin: Tuple::point(1_f32, 2_f32, 3_f32),
+        direction: Tuple::vector(0_f32, 1_f32, 0_f32)
     };
 
     let m = translation(3_f32, 4_f32, 5_f32);
 
     let ray2 = transform(&ray, &m);
-    assert_eq!(ray2.origin, Tuple::new_point(4_f32, 6_f32, 8_f32));
-    assert_eq!(ray2.direction, Tuple::new_vector(0_f32, 1_f32, 0_f32));
+    assert_eq!(ray2.origin, Tuple::point(4_f32, 6_f32, 8_f32));
+    assert_eq!(ray2.direction, Tuple::vector(0_f32, 1_f32, 0_f32));
 }
 
 
 #[test]
 fn scale_a_ray() {
     let ray = Ray {
-        origin: Tuple::new_point(1_f32, 2_f32, 3_f32),
-        direction: Tuple::new_vector(0_f32, 1_f32, 0_f32)
+        origin: Tuple::point(1_f32, 2_f32, 3_f32),
+        direction: Tuple::vector(0_f32, 1_f32, 0_f32)
     };
 
     let m = scaling(2_f32, 3_f32, 4_f32);
 
     let ray2 = transform(&ray, &m);
-    assert_eq!(ray2.origin, Tuple::new_point(2_f32, 6_f32, 12_f32));
-    assert_eq!(ray2.direction, Tuple::new_vector(0_f32, 3_f32, 0_f32));
+    assert_eq!(ray2.origin, Tuple::point(2_f32, 6_f32, 12_f32));
+    assert_eq!(ray2.direction, Tuple::vector(0_f32, 3_f32, 0_f32));
 }
 
 #[test]
 fn intersecting_a_scaled_sphere_with_a_ray() {
     let ray = Ray {
-        origin: Tuple::new_point(0_f32, 0_f32, -5_f32),
-        direction: Tuple::new_vector(0_f32, 0_f32, 1_f32)
+        origin: Tuple::point(0_f32, 0_f32, -5_f32),
+        direction: Tuple::vector(0_f32, 0_f32, 1_f32)
     };
 
     let mut sphere = Sphere::new(1);
@@ -271,5 +301,25 @@ fn intersecting_a_scaled_sphere_with_a_ray() {
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 3_f32);
     assert_eq!(xs[1].t, 7_f32);
+}
+
+
+#[test]
+fn precomputing_the_state_of_an_intersection() {
+    let t = 4_f32;
+    let obj_id = 1;
+    let ray = Ray::default();
+    let sphere = Sphere::new(obj_id);
+    let i = Intersection {
+        t,
+        obj: &sphere
+    };
+
+    let comps = prepare_computations(&i, &ray);
+    assert_eq!(comps.t, t);
+    assert_eq!(comps.object.id, obj_id);
+    assert_eq!(comps.point, Tuple::point(0_f32, 0_f32, -1_f32));
+    assert_eq!(comps.eye_direction, Tuple::vector(0_f32, 0_f32, -1_f32));
+    assert_eq!(comps.surface_normalv, Tuple::vector(0_f32, 0_f32, -1_f32)); 
 }
 

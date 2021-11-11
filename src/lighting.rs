@@ -6,6 +6,12 @@ pub struct PointLight {
     pub intensity: Color
 }
 
+impl PointLight {
+    pub fn new(position: Tuple, intensity: Color) -> PointLight {
+        PointLight { position, intensity }
+    }
+}
+
 pub struct Material {
     pub ambient: f32,
     pub diffuse: f32,
@@ -55,13 +61,13 @@ pub fn lighting(material: &Material, light: &PointLight, eye_pos: &Tuple, eye_di
 #[test]
 fn lighting_with_the_eye_between_the_light_and_the_surface() {
     let material = Material::default();
-    let position = Tuple::new_point(0_f32, 0_f32, 0_f32);
+    let position = Tuple::point(0_f32, 0_f32, 0_f32);
 
 
-    let eye_vector = Tuple::new_vector(0_f32, 0_f32, -1_f32);
-    let normal = Tuple::new_vector(0_f32, 0_f32, -1_f32);
+    let eye_vector = Tuple::vector(0_f32, 0_f32, -1_f32);
+    let normal = Tuple::vector(0_f32, 0_f32, -1_f32);
     let light = PointLight {
-        position: Tuple::new_point(0_f32, 0_f32, -10_f32),
+        position: Tuple::point(0_f32, 0_f32, -10_f32),
         intensity: Color::new(1_f32, 1_f32, 1_f32)
     };
 
@@ -72,13 +78,13 @@ fn lighting_with_the_eye_between_the_light_and_the_surface() {
 #[test]
 fn lighting_with_the_eye_between_light_and_the_surface_and_45deg_on_surface() {
     let material = Material::default();
-    let position = Tuple::new_point(0_f32, 0_f32, 0_f32);
+    let position = Tuple::point(0_f32, 0_f32, 0_f32);
 
 
-    let eye_vector = Tuple::new_vector(0_f32, 2_f32.sqrt()/2_f32, -2_f32.sqrt()/2_f32);
-    let normal = Tuple::new_vector(0_f32, 0_f32, -1_f32);
+    let eye_vector = Tuple::vector(0_f32, 2_f32.sqrt()/2_f32, -2_f32.sqrt()/2_f32);
+    let normal = Tuple::vector(0_f32, 0_f32, -1_f32);
     let light = PointLight {
-        position: Tuple::new_point(0_f32, 0_f32, -10_f32),
+        position: Tuple::point(0_f32, 0_f32, -10_f32),
         intensity: Color::new(1.0_f32, 1.0_f32, 1.0_f32)
     };
 
@@ -89,13 +95,13 @@ fn lighting_with_the_eye_between_light_and_the_surface_and_45deg_on_surface() {
 #[test]
 fn lighting_with_the_eye_oppsite_surface_light_offset_45deg() {
     let material = Material::default();
-    let position = Tuple::new_point(0_f32, 0_f32, 0_f32);
+    let position = Tuple::point(0_f32, 0_f32, 0_f32);
 
 
-    let eye_vector = Tuple::new_vector(0_f32, 0_f32, -1_f32);
-    let normal = Tuple::new_vector(0_f32, 0_f32, -1_f32);
+    let eye_vector = Tuple::vector(0_f32, 0_f32, -1_f32);
+    let normal = Tuple::vector(0_f32, 0_f32, -1_f32);
     let light = PointLight {
-        position: Tuple::new_point(0_f32, 10_f32, -10_f32),
+        position: Tuple::point(0_f32, 10_f32, -10_f32),
         intensity: Color::new(1.0_f32, 1.0_f32, 1.0_f32)
     };
 
@@ -106,13 +112,13 @@ fn lighting_with_the_eye_oppsite_surface_light_offset_45deg() {
 #[test]
 fn lighting_with_the_eye_in_the_path_of_the_reflection_vector() {
     let material = Material::default();
-    let position = Tuple::new_point(0_f32, 0_f32, 0_f32);
+    let position = Tuple::point(0_f32, 0_f32, 0_f32);
 
 
-    let eye_vector = Tuple::new_vector(0_f32, -(2_f32.sqrt()/2_f32), -2_f32.sqrt()/2_f32);
-    let normal = Tuple::new_vector(0_f32, 0_f32, -1_f32);
+    let eye_vector = Tuple::vector(0_f32, -(2_f32.sqrt()/2_f32), -2_f32.sqrt()/2_f32);
+    let normal = Tuple::vector(0_f32, 0_f32, -1_f32);
     let light = PointLight {
-        position: Tuple::new_point(0_f32, 10_f32, -10_f32),
+        position: Tuple::point(0_f32, 10_f32, -10_f32),
         intensity: Color::new(1.0_f32, 1.0_f32, 1.0_f32)
     };
 
@@ -123,13 +129,13 @@ fn lighting_with_the_eye_in_the_path_of_the_reflection_vector() {
 #[test]
 fn lighting_with_the_light_behind_the_surface() {
     let material = Material::default();
-    let position = Tuple::new_point(0_f32, 0_f32, 0_f32);
+    let position = Tuple::point(0_f32, 0_f32, 0_f32);
 
 
-    let eye_vector = Tuple::new_vector(0_f32, 0_f32, -1_f32);
-    let normal = Tuple::new_vector(0_f32, 0_f32, -1_f32);
+    let eye_vector = Tuple::vector(0_f32, 0_f32, -1_f32);
+    let normal = Tuple::vector(0_f32, 0_f32, -1_f32);
     let light = PointLight {
-        position: Tuple::new_point(0_f32, 0_f32, 10_f32),
+        position: Tuple::point(0_f32, 0_f32, 10_f32),
         intensity: Color::new(1_f32, 1_f32, 1_f32)
     };
 

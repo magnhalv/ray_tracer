@@ -7,6 +7,7 @@ mod ray;
 mod sphere;
 mod lighting;
 mod math;
+mod world;
 
 use matrix::{Matrix4};
 use tuple::Tuple;
@@ -28,7 +29,7 @@ fn main() {
     sphere.material.color = Color::new(1_f32, 0.2_f32, 1_f32);
         
     let light = PointLight {
-        position: Tuple::new_point(-10_f32, 10_f32, -10_f32),
+        position: Tuple::point(-10_f32, 10_f32, -10_f32),
         intensity: Color::new(1_f32, 1_f32, 1_f32)
     };    
 
@@ -36,15 +37,15 @@ fn main() {
     let mut nof_hits = 0;
 
     let mut ray = Ray {
-        origin: Tuple::new_point(0_f32, 0_f32, -5_f32),
-        direction: Tuple::new_vector(0_f32, 0_f32, 1_f32)
+        origin: Tuple::point(0_f32, 0_f32, -5_f32),
+        direction: Tuple::vector(0_f32, 0_f32, 1_f32)
     };
     for y in 0..dim {
         let world_y = half - (pixel_size * (y as f32));
         for x in 0..dim {
             let world_x = -half + ((pixel_size) * (x as f32));
 
-            ray.direction = (Tuple::new_vector(world_x, world_y, wall_z) - ray.origin).normalize();
+            ray.direction = (Tuple::vector(world_x, world_y, wall_z) - ray.origin).normalize();
 
             let intersections = intersects(&sphere, &ray);
 
