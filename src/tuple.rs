@@ -149,7 +149,7 @@ impl Tuple {
         }
     }
 
-    pub fn cross(self, lhs: Tuple) -> Tuple {
+    pub fn cross(self, lhs: &Tuple) -> Tuple {
         Tuple {
             x: self.y * lhs.z - self.z * lhs.y,
             y: self.z * lhs.x - self.x * lhs.z,
@@ -276,8 +276,8 @@ fn normalize_vector() {
 fn cross_product_vector() {
     let v1 = Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32);
     let v2 = Tuple::vector(0.0_f32, 0.0_f32, 1.0_f32);
-    assert_eq!(v2.cross(v1), Tuple::vector(0.0_f32, 1.0_f32, 0.0_f32));
-    assert_eq!(v1.cross(v2), Tuple::vector(0.0_f32, -1.0_f32, 0.0_f32));
+    assert_eq!(v2.cross(&v1), Tuple::vector(0.0_f32, 1.0_f32, 0.0_f32));
+    assert_eq!(v1.cross(&v2), Tuple::vector(0.0_f32, -1.0_f32, 0.0_f32));
 }
 
 #[test]

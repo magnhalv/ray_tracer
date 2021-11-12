@@ -87,6 +87,20 @@ pub fn shearing(x_to_y: f32, x_to_z: f32, y_to_x: f32, y_to_z: f32, z_to_x: f32,
     )
 }
 
+pub fn view_transform(from: &Tuple, to: &Tuple, up: &Tuple) -> Matrix4 {
+    let forward = (*to - *from).normalize();    
+    let left = forward.cross(&up.normalize());
+    let true_up = left.cross(&forward);
+    let orientation = Matrix4::new(
+        left.x,       left.y,       left.z,      0_f32, 
+        true_up.x,    true_up.y,    true_up.z,   0_f32, 
+        -forward.x,   -forward.y,   -forward.z,  0_f32,
+        0_f32,        0_f32,        0_f32,       1_f32
+    );
+
+    &orientation * &translation(-from.x, -from.y, -from.z)
+}
+
 #[test]
 fn translate_point() {
     let transform = translation(5_f32, -3_f32, 2_f32);
@@ -224,3 +238,48 @@ fn chaining_fluent_transformations() {
     let point = &full_transform * &point;
     assert_eq!(point, Tuple::point(15_f32, 0_f32, 7_f32));
 } 
+
+#[test]
+fn the_view_transformation_matrix_for_the_default_orientation() {
+    let from = Tuple::point(0_f32, 0_f32, 0_f32);
+    let to = Tuple::point(0_f32, 0_f32, -1_f32);
+    let up = Tuple::vector(0_f32, 1_f32, 0_f32);
+
+    let t = view_transform(&from, &to, &up);
+    assert_eq!(t, Matrix4::identity());
+}
+
+#[test]
+fn a_view_transformation_matrix_looking_in_positive_z_direction() {
+    let from = Tuple::point(0_f32, 0_f32, 0_f32);
+    let to = Tuple::point(0_f32, 0_f32, 1_f32);
+    let up = Tuple::vector(0_f32, 1_f32, 0_f32);
+
+    let t = view_transform(&from, &to, &up);
+    assert_eq!(t, Matrix4::identity().scale(-1_f32, 1_f32, -1_f32));
+}
+
+#[test]
+fn the_view_transformation_matrix_moves_the_world() {
+    let from = Tuple::point(0_f32, 0_f32, 8_f32);
+    let to = Tuple::point(0_f32, 0_f32, 0_f32);
+    let up = Tuple::vector(0_f32, 1_f32, 0_f32);
+
+    let t = view_transform(&from, &to, &up);
+    assert_eq!(t, Matrix4::identity().translate(0_f32, 0_f32, -8_f32));
+}
+
+#[test]
+fn an_arbitrary_view_transformation() {
+    let from = Tuple::point(1_f32, 3_f32, 2_f32);
+    let to = Tuple::point(4_f32, -2_f32, 8_f32);
+    let up = Tuple::vector(1_f32, 1_f32, 0_f32);
+
+    let t = view_transform(&from, &to, &up);
+    let expected = Matrix4::new(
+        -0.50709_f32,  0.50709_f32,  0.67612_f32,   -2.36643_f32, 
+        0.76772_f32,   0.60609_f32,  0.12122_f32,   -2.82843_f32, 
+        -0.35857_f32,  0.59761_f32,  -0.71714_f32,  0_f32, 
+        0_f32,         0_f32,        0_f32,         1_f32);
+    assert_eq!(t, expected);
+}
