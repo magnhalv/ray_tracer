@@ -81,18 +81,27 @@ pub struct Computation<'a> {
     pub point: Tuple,
     pub eye_direction: Tuple,
     pub surface_normalv:  Tuple,    
+    pub is_inside: bool
 }
 
  pub fn prepare_computations<'a>(i: &'a Intersection, ray: &Ray) -> Computation<'a> {
     let point = ray.position(i.t);
     let eye_direction = -ray.direction;
-    let surface_normalv = i.obj.normal_at(&point);
+    
+    let mut surface_normalv = i.obj.normal_at(&point);
+    let mut is_inside = false;
+    if eye_direction.dot(&surface_normalv) < 0_f32 {
+        is_inside = true;
+        surface_normalv = -surface_normalv;
+    }
+
     Computation {        
         object: i.obj,
         t: i.t,
         point,
         eye_direction,
-        surface_normalv        
+        surface_normalv,
+        is_inside
     }
 } 
 
@@ -323,3 +332,29 @@ fn precomputing_the_state_of_an_intersection() {
     assert_eq!(comps.surface_normalv, Tuple::vector(0_f32, 0_f32, -1_f32)); 
 }
 
+#[test]
+fn the_hit_when_an_interection_occurs_on_the_outside() {
+    let ray = Ray::default();
+    let sphere = Sphere::new(1);
+    let i = Intersection {
+        t: 4_f32,
+        obj: &sphere
+    };
+    let comps = prepare_computations(&i, &ray);
+    assert_eq!(comps.is_inside, false)
+}
+
+#[test]
+fn the_hit_when_an_interection_occurs_on_the_inside() {
+    let ray = Ray::new(Tuple::point(0_f32, 0_f32, 0_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
+    let sphere = Sphere::new(1);
+    let i = Intersection {
+        t: 1_f32,
+        obj: &sphere
+    };
+    let comps = prepare_computations(&i, &ray);
+    assert_eq!(comps.point, Tuple::point(0_f32, 0_f32, 1_f32));
+    assert_eq!(comps.eye_direction, Tuple::vector(0_f32, 0_f32, -1_f32));    
+    assert_eq!(comps.is_inside, true);
+    assert_eq!(comps.surface_normalv, Tuple::vector(0_f32, 0_f32, -1_f32)); 
+}
