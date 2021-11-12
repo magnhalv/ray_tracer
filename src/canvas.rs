@@ -4,7 +4,7 @@ use std::fs;
 pub struct Canvas {
     pub width: usize,
     pub height: usize,
-    pixels: Box<[Color]>
+    pub pixels: Box<[Color]>
 }
 
 impl Canvas {
