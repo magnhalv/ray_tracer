@@ -11,6 +11,7 @@ mod sphere;
 mod lighting;
 mod math;
 mod world;
+mod camera;
 
 use matrix::{Matrix4};
 use tuple::Tuple;

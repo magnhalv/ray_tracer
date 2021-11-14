@@ -14,6 +14,14 @@ impl Canvas {
             pixels: vec![unsafe { std::mem::zeroed() }; width*height].into_boxed_slice()
         }
     }
+
+    pub fn pixel_at(&self, x: usize, y: usize) -> Color {
+        self.pixels[y*self.width + x]
+    }
+
+    pub fn set_pixel (&mut self, x: usize, y: usize, color: Color) {        
+        self.pixels[y*self.width + x] = color;
+    }
 }
 
 pub fn get_pixel(canvas: &Canvas, x: usize, y: usize) -> Color {
