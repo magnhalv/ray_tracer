@@ -8,8 +8,8 @@ use crate::Tuple;
 use crate::lighting::{lighting};
 
 pub struct World {
-    objects: Vec<Sphere>,
-    light: PointLight,
+    pub objects: Vec<Sphere>,
+    pub light: PointLight,
 }
 
 impl World {
@@ -28,6 +28,13 @@ impl World {
         s2.set_transformation(Matrix4::identity().scale(0.5_f32, 0.5_f32, 0.5_f32));
         World {
             objects: vec![s1, s2],
+            light,
+        }
+    }
+
+    pub fn new(light: PointLight) -> World {
+        World {
+            objects: vec![],
             light,
         }
     }

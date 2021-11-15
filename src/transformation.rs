@@ -87,6 +87,8 @@ pub fn shearing(x_to_y: f32, x_to_z: f32, y_to_x: f32, y_to_z: f32, z_to_x: f32,
     )
 }
 
+
+// Maybe move to camera?
 pub fn view_transform(from: &Tuple, to: &Tuple, up: &Tuple) -> Matrix4 {
     let forward = (*to - *from).normalize();    
     let left = forward.cross(&up.normalize());
