@@ -1,4 +1,6 @@
-pub fn float_equal(a: f32, b: f32) -> bool {
-    let max_diff = 0.00001_f32;
-    a == b || (a - b).abs() <= max_diff
+pub const EPSILON : f32 = 0.0001_f32;
+pub const SHADOW_EPSILON : f32 = 0.01_f32;
+
+pub fn float_equal(a: f32, b: f32) -> bool {    
+    a == b || (a - b).abs() <= EPSILON
 }

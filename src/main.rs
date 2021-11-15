@@ -75,7 +75,7 @@ fn main() {
     left.material.diffuse = 0.7_f32;
     left.material.specular = 0.3_f32;
 
-    let light = PointLight::new(Tuple::point(-10_f32, 10_f32, -10_f32), Color::new(0.33_f32, 0.33_f32, 0.33_f32));
+    let light = PointLight::new(Tuple::point(-10_f32, 10_f32, -10_f32), Color::new(1_f32, 1_f32, 1_f32));
     let mut world = World::new(light);
     world.objects.push(floor);
     world.objects.push(left_wall);

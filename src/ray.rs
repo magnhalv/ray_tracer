@@ -2,6 +2,7 @@ use crate::tuple::Tuple;
 use crate::matrix::{Matrix4, inverse4};
 use crate::transformation::{{translation, scaling}};
 use crate::sphere::Sphere;
+use crate::math::SHADOW_EPSILON;
 
 pub struct Ray {
     pub origin: Tuple,
@@ -79,11 +80,13 @@ pub struct Computation<'a> {
     pub object: &'a Sphere,
     pub t: f32,
     pub point: Tuple,
+    pub over_point: Tuple, // used to avoid shadow acne
     pub eye_direction: Tuple,
     pub surface_normalv:  Tuple,    
     pub is_inside: bool
 }
 
+// TODO: Find better name for this.
  pub fn prepare_computations<'a>(i: &'a Intersection, ray: &Ray) -> Computation<'a> {
     let point = ray.position(i.t);
     let eye_direction = -ray.direction;
@@ -95,10 +98,13 @@ pub struct Computation<'a> {
         surface_normalv = -surface_normalv;
     }
 
+    let over_point = point + (SHADOW_EPSILON * surface_normalv);
+
     Computation {        
         object: i.obj,
         t: i.t,
         point,
+        over_point,
         eye_direction,
         surface_normalv,
         is_inside
@@ -357,4 +363,20 @@ fn the_hit_when_an_interection_occurs_on_the_inside() {
     assert_eq!(comps.eye_direction, Tuple::vector(0_f32, 0_f32, -1_f32));    
     assert_eq!(comps.is_inside, true);
     assert_eq!(comps.surface_normalv, Tuple::vector(0_f32, 0_f32, -1_f32)); 
+}
+
+#[test]
+fn the_hit_should_offset_the_point_to_avoid_acne() {
+    let ray = Ray::new(Tuple::point(0_f32, 0_f32, -5_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
+    let mut sphere = Sphere::new(1);
+    sphere.set_transformation(Matrix4::identity().translate(0_f32, 0_f32, 1_f32));
+    
+    let i = Intersection {
+        t: 5_f32,
+        obj: &sphere
+    };
+    
+    let comps = prepare_computations(&i, &ray);
+    assert!(comps.over_point.z < -SHADOW_EPSILON/2_f32);
+    assert!(comps.point.z > comps.over_point.z);
 }

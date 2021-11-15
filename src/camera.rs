@@ -1,9 +1,8 @@
 use crate::canvas::set_pixel;
-use crate::world::color_at;
+use crate::world::{color_at, World};
 use crate::Color;
 use crate::canvas::Canvas;
 use crate::transformation::view_transform;
-use crate::world::World;
 use crate::matrix::inverse4;
 use crate::Matrix4;
 use crate::Ray;
