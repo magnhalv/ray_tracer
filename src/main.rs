@@ -1,5 +1,6 @@
 extern crate minifb;
 
+use crate::shape::Shape;
 use crate::camera::render;
 use crate::transformation::view_transform;
 use crate::camera::Camera;
@@ -17,11 +18,13 @@ mod sphere;
 mod transformation;
 mod tuple;
 mod world;
+mod test;
+mod shape;
 
 use color::Color;
 use lighting::{lighting, PointLight};
 use matrix::Matrix4;
-use ray::{intersects, Ray};
+use ray::{Ray};
 use sphere::Sphere;
 use tuple::Tuple;
 
@@ -77,12 +80,12 @@ fn main() {
 
     let light = PointLight::new(Tuple::point(-10_f32, 10_f32, -10_f32), Color::new(1_f32, 1_f32, 1_f32));
     let mut world = World::new(light);
-    world.objects.push(floor);
-    world.objects.push(left_wall);
-    world.objects.push(right_wall);
-    world.objects.push(middle);    
-    world.objects.push(left);
-    world.objects.push(right);
+    world.objects.push(&floor);
+    world.objects.push(&left_wall);
+    world.objects.push(&right_wall);
+    world.objects.push(&middle);    
+    world.objects.push(&left);
+    world.objects.push(&right);
 
     let mut camera = Camera::new(DIM_X, DIM_Y, PI/3_f32);
     let from = Tuple::point(0_f32, 1.5_f32, -5_f32);
@@ -117,7 +120,7 @@ fn main() {
             let b = limit((color.blue * 255.0_f32) as i32, 0, 255);
 
             let value = [0, r, g, b];
-            *i = u32::from_be_bytes(value); // write something more funny here!
+            *i = u32::from_be_bytes(value);
             index = index + 1;
         }
 

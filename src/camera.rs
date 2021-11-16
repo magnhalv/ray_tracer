@@ -1,3 +1,4 @@
+use crate::Sphere;
 use crate::canvas::set_pixel;
 use crate::world::{color_at, World};
 use crate::Color;
@@ -126,7 +127,8 @@ fn constructing_a_ray_when_the_camera_is_transformed() {
 
 #[test]
 fn rendering_a_world_with_a_camera() {
-    let world = World::default();
+    let default : (Sphere, Sphere) = World::default_spheres();
+    let world: World = World::default(&default.0, &default.1);
     let mut camera = Camera::new(11, 11, PI/2_f32);    
     let from = Tuple::point(0_f32, 0_f32, -5_f32);
     let to = Tuple::point(0_f32, 0_f32, 0_f32);

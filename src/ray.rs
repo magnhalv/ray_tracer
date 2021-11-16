@@ -1,8 +1,10 @@
+use crate::transformation::scaling;
+use crate::transformation::translation;
+use crate::Sphere;
 use crate::tuple::Tuple;
-use crate::matrix::{Matrix4, inverse4};
-use crate::transformation::{{translation, scaling}};
-use crate::sphere::Sphere;
+use crate::matrix::{Matrix4};
 use crate::math::SHADOW_EPSILON;
+use crate::shape::Shape;
 
 pub struct Ray {
     pub origin: Tuple,
@@ -10,7 +12,7 @@ pub struct Ray {
 }
 
 pub struct Intersection<'a> {
-    pub obj: &'a Sphere,
+    pub obj: &'a dyn Shape,
     pub t: f32,
 }
 
@@ -28,42 +30,6 @@ impl Ray {
     }
 }
 
-
-pub fn intersects<'a>(sphere: &'a Sphere, ray: &Ray) -> Vec<Intersection<'a>> {
-    // A point on a spehere exists so that
-    // (x - x0)^2 + (y - y0)^2 + (z - z0)^2 = r^2
-    // ||P - C||^2 = r^2
-    // dot((P-C), (P-C)) = r^2
-    // P = A + tB, where P is the ray
-    // dot((tB + (A-C), tB + (A - C))) = r^2
-    // <=>
-    // t^2 dot(B, B) + 2t dot(B, A-C) + dot(A-C, A-C) - r^2 = 0
-    let ray = transform(&ray, &sphere.inverse_transformation);
-    let mut result = Vec::new();
-    let sphere_to_ray = ray.origin - Tuple::point(0_f32, 0_f32, 0_f32);
-    let a = ray.direction.dot(&ray.direction);
-    let b = 2_f32 * ray.direction.dot(&sphere_to_ray);
-    let c = sphere_to_ray.dot(&sphere_to_ray) - 1_f32;
-
-    let discriminant = b.powf(2_f32) - 4_f32 * a * c;
-
-    if discriminant < 0_f32 {
-        return result;
-    }
-    let i1 = Intersection {
-        obj: &sphere,
-        t: (-b - discriminant.sqrt()) / (2_f32 * a),
-    };
-
-    let i2 = Intersection {
-        obj: &sphere,
-        t: (-b + discriminant.sqrt()) / (2_f32 * a),
-    };
-    result.push(i1);
-    result.push(i2);
-    result
-}
-
 pub fn hit<'a>(intersections: &'a Vec<Intersection<'a>>) -> Option<&'a Intersection<'a>> {
     intersections
         .iter()
@@ -72,12 +38,12 @@ pub fn hit<'a>(intersections: &'a Vec<Intersection<'a>>) -> Option<&'a Intersect
     
 }
 
-fn transform(ray: &Ray, transformation: &Matrix4) -> Ray {
+pub fn transform(ray: &Ray, transformation: &Matrix4) -> Ray {
     Ray { origin: transformation * &ray.origin, direction: transformation * &ray.direction }
 }
 
 pub struct Computation<'a> {
-    pub object: &'a Sphere,
+    pub object: &'a dyn Shape,
     pub t: f32,
     pub point: Tuple,
     pub over_point: Tuple, // used to avoid shadow acne
@@ -139,7 +105,7 @@ fn ray_intesects_a_sphere_at_two_points() {
 
     let sphere = Sphere::new(1);
 
-    let xs = intersects(&sphere, &ray);
+    let xs = sphere.intersections_by(&ray);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 4_f32);
     assert_eq!(xs[1].t, 6_f32);
@@ -154,7 +120,7 @@ fn ray_intesects_a_sphere_at_a_tangent() {
 
     let sphere = Sphere::new(1);
 
-    let xs = intersects(&sphere, &ray);
+    let xs = sphere.intersections_by(&ray);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 5_f32);
     assert_eq!(xs[1].t, 5_f32);
@@ -169,7 +135,7 @@ fn ray_interspects_but_misses_sphere() {
 
     let sphere = Sphere::new(1);
 
-    let xs = intersects(&sphere, &ray);
+    let xs = sphere.intersections_by(&ray);
     assert_eq!(xs.len(), 0);
 }
 
@@ -182,7 +148,7 @@ fn ray_intersects_when_it_originiates_inside_sphere() {
 
     let sphere = Sphere::new(1);
 
-    let xs = intersects(&sphere, &ray);
+    let xs = sphere.intersections_by(&ray);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, -1_f32);
     assert_eq!(xs[1].t, 1_f32);
@@ -197,7 +163,7 @@ fn ray_intersects_when_sphere_is_behind_ray() {
 
     let sphere = Sphere::new(1);
 
-    let xs = intersects(&sphere, &ray);
+    let xs = sphere.intersections_by(&ray);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, -6_f32);
     assert_eq!(xs[1].t, -4_f32);
@@ -312,7 +278,7 @@ fn intersecting_a_scaled_sphere_with_a_ray() {
 
     let mut sphere = Sphere::new(1);
     sphere.set_transformation(scaling(2_f32, 2_f32, 2_f32));
-    let xs = intersects(&sphere, &ray);
+    let xs = sphere.intersections_by(&ray);
     assert_eq!(xs.len(), 2);
     assert_eq!(xs[0].t, 3_f32);
     assert_eq!(xs[1].t, 7_f32);
@@ -331,8 +297,7 @@ fn precomputing_the_state_of_an_intersection() {
     };
 
     let comps = prepare_computations(&i, &ray);
-    assert_eq!(comps.t, t);
-    assert_eq!(comps.object.id, obj_id);
+    assert_eq!(comps.t, t);    
     assert_eq!(comps.point, Tuple::point(0_f32, 0_f32, -1_f32));
     assert_eq!(comps.eye_direction, Tuple::vector(0_f32, 0_f32, -1_f32));
     assert_eq!(comps.surface_normalv, Tuple::vector(0_f32, 0_f32, -1_f32)); 

@@ -1,3 +1,7 @@
+use crate::ray::transform;
+use crate::Ray;
+use crate::ray::Intersection;
+use crate::shape::Shape;
 use crate::lighting::Material;
 use crate::Tuple;
 use crate::matrix::{{Matrix4, inverse4}};
@@ -12,19 +16,64 @@ pub struct Sphere {
 impl Sphere {
     pub fn new(id: u32) -> Sphere {
         Sphere { id, transformation: Matrix4::identity(), inverse_transformation: Matrix4::identity(), material: Material::default() }
-    }
+    }    
+}
 
-    pub fn set_transformation(&mut self, t: Matrix4) {
+impl Shape for Sphere {
+    fn set_transformation(&mut self, t: Matrix4) {
         self.transformation = t;
         self.inverse_transformation = inverse4(&self.transformation)
     }
 
-    pub fn normal_at(&self, world_point: &Tuple) -> Tuple {
+    fn normal_at(&self, world_point: &Tuple) -> Tuple {
         let object_point = &self.inverse_transformation * world_point;
         let object_normal = (object_point - Tuple::point(0_f32, 0_f32, 0_f32)).normalize();        
         let mut world_normal = &self.inverse_transformation.transpose() * &object_normal;
         world_normal.w = 0_f32; // Hack. Should actually find submatrix 3x3, and multiply with the inverse of that, to avoid messing with w. But this is fine and faster.
         world_normal.normalize()
+    }
+
+    fn get_material(&self) -> &Material {
+        &self.material
+    }
+    
+    fn get_inverse_transformation(&self) -> &Matrix4 {  
+        &self.inverse_transformation
+    }
+
+    fn intersections_by<'a>(&'a self, ray: &Ray) -> Vec<Intersection<'a>> {
+        // A point on a spehere exists so that
+        // (x - x0)^2 + (y - y0)^2 + (z - z0)^2 = r^2
+        // ||P - C||^2 = r^2
+        // dot((P-C), (P-C)) = r^2
+        // P = A + tB, where P is the ray
+        // dot((tB + (A-C), tB + (A - C))) = r^2
+        // <=>
+        // t^2 dot(B, B) + 2t dot(B, A-C) + dot(A-C, A-C) - r^2 = 0
+        let ray = transform(&ray, &self.inverse_transformation);
+        let mut result = Vec::new();
+        let shape_to_ray = ray.origin - Tuple::point(0_f32, 0_f32, 0_f32);
+        let a = ray.direction.dot(&ray.direction);
+        let b = 2_f32 * ray.direction.dot(&shape_to_ray);
+        let c = shape_to_ray.dot(&shape_to_ray) - 1_f32;
+    
+        let discriminant = b.powf(2_f32) - 4_f32 * a * c;
+    
+        if discriminant < 0_f32 {
+            return result;
+        }
+        let i1 = Intersection {
+            obj: self,
+            t: (-b - discriminant.sqrt()) / (2_f32 * a),
+        };
+    
+        let i2 = Intersection {
+            obj: self,
+            t: (-b + discriminant.sqrt()) / (2_f32 * a),
+        };
+        result.push(i1);
+        result.push(i2);
+        result
     }
 }
 
