@@ -1,5 +1,6 @@
 extern crate minifb;
 
+use crate::plane::Plane;
 use crate::shape::Shape;
 use crate::camera::render;
 use crate::transformation::view_transform;
@@ -20,6 +21,7 @@ mod tuple;
 mod world;
 mod test;
 mod shape;
+mod plane;
 
 use color::Color;
 use lighting::{lighting, PointLight};
@@ -33,32 +35,13 @@ const DIM_Y : usize = 800;
 
 fn main() {    
 
-    let mut floor = Sphere::new(1);
-    floor.set_transformation(Matrix4::identity().scale(10_f32, 0.01_f32, 10_f32));
+    let mut floor = Plane::new();
+    //floor.set_transformation(Matrix4::identity().(10_f32, 0.01_f32, 10_f32));
     floor.material.color = Color::new(1_f32, 0.9_f32, 0.9_f32);
-    floor.material.specular = 0_f32;
-    let mut left_wall = Sphere::new(2);
-    left_wall.set_transformation(
-        Matrix4::identity()
-            .translate(0_f32, 0_f32, 5_f32)
-            .rotate_y(-PI / 4_f32)
-            .rotate_x(PI/2_f32)
-            .scale(10_f32, 0.01_f32, 10_f32),            
-    );
-    left_wall.material.color = Color::new(1_f32, 0.9_f32, 0.9_f32);
-    left_wall.material.specular = 0_f32;
+    floor.material.specular = 0.3_f32;
+    floor.material.diffuse = 0.7_f32;
 
-    let mut right_wall = Sphere::new(3);
-    right_wall.set_transformation(
-        Matrix4::identity()
-            .translate(0_f32, 0_f32, 5_f32)
-            .rotate_y(PI / 4_f32)
-            .rotate_x(PI/2_f32)
-            .scale(10_f32, 0.01_f32, 10_f32),            
-    );
-    right_wall.material.color = Color::new(1_f32, 0.9_f32, 0.9_f32);
-    right_wall.material.specular = 0_f32;
-
+   
     let mut middle = Sphere::new(4);
     middle.set_transformation(Matrix4::identity().translate(-0.5_f32, 1_f32, 0.5_f32));
     middle.material.color = Color::new(0.1_f32, 1_f32, 0.5_f32);
@@ -81,8 +64,6 @@ fn main() {
     let light = PointLight::new(Tuple::point(-10_f32, 10_f32, -10_f32), Color::new(1_f32, 1_f32, 1_f32));
     let mut world = World::new(light);
     world.objects.push(&floor);
-    world.objects.push(&left_wall);
-    world.objects.push(&right_wall);
     world.objects.push(&middle);    
     world.objects.push(&left);
     world.objects.push(&right);

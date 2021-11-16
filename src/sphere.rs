@@ -36,10 +36,7 @@ impl Shape for Sphere {
     fn get_material(&self) -> &Material {
         &self.material
     }
-    
-    fn get_inverse_transformation(&self) -> &Matrix4 {  
-        &self.inverse_transformation
-    }
+
 
     fn intersections_by<'a>(&'a self, ray: &Ray) -> Vec<Intersection<'a>> {
         // A point on a spehere exists so that
