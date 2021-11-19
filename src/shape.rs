@@ -1,6 +1,6 @@
 use crate::ray::Intersection;
 use crate::Ray;
-use crate::lighting::Material;
+use crate::material::Material;
 use crate::Tuple;
 use crate::Matrix4;
 

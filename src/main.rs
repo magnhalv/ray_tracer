@@ -19,9 +19,10 @@ mod sphere;
 mod transformation;
 mod tuple;
 mod world;
-mod test;
 mod shape;
 mod plane;
+mod pattern;
+mod material;
 
 use color::Color;
 use lighting::{lighting, PointLight};

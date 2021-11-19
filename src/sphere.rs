@@ -2,7 +2,7 @@ use crate::ray::transform;
 use crate::Ray;
 use crate::ray::Intersection;
 use crate::shape::Shape;
-use crate::lighting::Material;
+use crate::material::Material;
 use crate::Tuple;
 use crate::matrix::{{Matrix4, inverse4}};
 

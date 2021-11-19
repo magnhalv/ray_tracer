@@ -8,6 +8,18 @@
             "program": "${workspaceFolder}/target/debug/ray_tracer",
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Run Test Debugger",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/debug/ray_tracer.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "preLaunchTask": "cargo test build",
         }
     ]
 }

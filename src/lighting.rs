@@ -1,3 +1,4 @@
+use crate::material::Material;
 use crate::color::Color;
 use crate::tuple::{Tuple, reflect};
 
@@ -12,23 +13,15 @@ impl PointLight {
     }
 }
 
-pub struct Material {
-    pub ambient: f32,
-    pub diffuse: f32,
-    pub specular: f32,
-    pub shininess: f32,
-    pub color: Color
-}
+pub fn lighting(material: &Material, light: &PointLight, point: &Tuple, eye_dir: &Tuple, &surface_normal: &Tuple, in_shadow: bool) -> Color {    
+    let color = match &material.pattern {
+        Some(p) => p.color_at(point),
+        None => material.color
+    };
 
-impl Material {
-    pub fn default() -> Material {
-        Material { ambient: 0.1_f32, diffuse: 0.9_f32, specular: 0.9_f32, shininess: 200_f32, color: Color::new(1_f32, 1_f32, 1_f32) }
-    }
-}
+    let effective_color = color * light.intensity;
 
-pub fn lighting(material: &Material, light: &PointLight, eye_pos: &Tuple, eye_dir: &Tuple, &surface_normal: &Tuple, in_shadow: bool) -> Color {
-    let effective_color = material.color * light.intensity;
-    let light_vector = (light.position - *eye_pos).normalize();
+    let light_vector = (light.position - *point).normalize();
 
     let ambient = effective_color * material.ambient;
 

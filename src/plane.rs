@@ -1,6 +1,6 @@
 use crate::math::EPSILON;
 use crate::Shape;
-use crate::lighting::Material;
+use crate::material::Material;
 use crate::matrix::inverse4;
 use crate::ray::transform;
 use crate::ray::Intersection;
