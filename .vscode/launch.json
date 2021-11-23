@@ -13,7 +13,7 @@
             "name": "Run Test Debugger",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/target/debug/ray_tracer.exe",
+            "program": "${workspaceFolder}/target/debug/deps/ray_tracer-514770dd2c749247.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -72,6 +72,14 @@ impl Shape for Sphere {
         result.push(i2);
         result
     }
+
+    fn get_inverse_transformation(&self) -> &Matrix4 {
+        &self.inverse_transformation
+    }
+
+    fn get_id(&self) -> u32 {
+        self.id
+    }
 }
 
 #[test]

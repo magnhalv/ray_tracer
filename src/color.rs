@@ -3,11 +3,11 @@ use std::fmt;
 use std::ops::{Add, Mul, Sub};
 use std::cmp::PartialEq;
 
-pub const black: Color = Color {
+pub const BLACK: Color = Color {
     red: 0_f32, green: 0_f32, blue: 0_f32
 };
 
-pub const white: Color = Color {
+pub const WHITE: Color = Color {
     red: 1_f32, green: 1_f32, blue: 1_f32
 };
 

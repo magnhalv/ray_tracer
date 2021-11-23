@@ -48,6 +48,14 @@ impl Shape for Plane {
         
         vec![i1]
     }
+
+    fn get_inverse_transformation(&self) -> &Matrix4 {
+        &self.inverse_transformation
+    }
+
+    fn get_id(&self) -> u32 {
+        0_u32
+    }
 }
 
 #[test]
