@@ -39,8 +39,8 @@ use ray::Ray;
 use sphere::Sphere;
 use tuple::Tuple;
 
-const DIM_X: usize = 1600;
-const DIM_Y: usize = 800;
+const DIM_X: usize = 800;
+const DIM_Y: usize = 400;
 
 fn main() {
     /* Floor  */
@@ -54,7 +54,7 @@ fn main() {
         first: WHITE,
         second: BLACK,
         inverse_transformation: Matrix4::identity()
-    };    
+    };     
 
     floorPattern.set_transform(&Matrix4::identity().scale(1_f32, 1_f32, 1_f32));    
     floor.material.pattern = Some(Box::new(floorPattern));
@@ -94,7 +94,7 @@ fn main() {
         second: Color::new(0.0_f32, 0.0_f32, 1.0_f32),
         inverse_transformation: Matrix4::identity()
     };    
-    right_pattern.set_transform(&Matrix4::identity().translate(1_f32, 0_f32, 0_f32).scale(2_f32, 1_f32, 1_f32));    
+    right_pattern.set_transform(&Matrix4::identity().translate(-1_f32, 0_f32, 0_f32).scale(2_f32, 1_f32, 1_f32));    
     right.material.pattern = Some(Box::new(right_pattern));
         
     /* LEFT */
@@ -103,7 +103,8 @@ fn main() {
     left.set_transformation(
         Matrix4::identity()
             .translate(-15_f32, 5_f32, -5.5_f32)
-            .scale(5_f32, 5_f32, 5_f32),
+            .scale(5_f32, 5_f32, 5_f32)
+            .rotate_x(PI/2_f32)
     );
     left.material.diffuse = 0.7_f32;
     left.material.specular = 0.3_f32;
@@ -112,7 +113,7 @@ fn main() {
         second: Color::new(0.4_f32, 0.8_f32, 0.4_f32),
         inverse_transformation: Matrix4::identity()
     };    
-    left_pattern.set_transform(&Matrix4::identity().translate(-1_f32, 0_f32, -1_f32));    
+    left_pattern.set_transform(&Matrix4::identity().translate(-1_f32, -1_f32, -1_f32).scale(0.2_f32, 0.2_f32, 0.2_f32));    
     left.material.pattern = Some(Box::new(left_pattern));
 
     // REST

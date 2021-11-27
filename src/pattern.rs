@@ -66,6 +66,15 @@ impl Pattern for GradientPattern {
     fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color {
         let obj_point = object.get_inverse_transformation() * world_point;
         let pattern_point = &self.inverse_transformation * &obj_point;
+
+        /* unsafe {
+            static mut smallest_obj_x: f32 = 1000_f32;;
+            static mut bigest_obj_x: f32 = -1000_f32;;
+            smallest_obj_x = f32::min(smallest_obj_x, pattern_point.x);
+            bigest_obj_x = f32::max(bigest_obj_x, pattern_point.x);
+            println!("Smallest x: {}. Biggest x: {}", smallest_obj_x, bigest_obj_x);
+        } */
+
         self.color_at(&pattern_point)
     }
 
@@ -84,25 +93,29 @@ impl Pattern for RingPattern {
     fn color_at(&self, point: &Tuple) -> Color { 
         let magnitude = ((point.x.powf(2_f32) + point.z.powf(2_f32)).sqrt()).floor();
         //println!("Magnitude: {}. x: {}, z: {}", magnitude, point.x, point.z);           
-        if (magnitude as i32) % 2 == 0 {
+        if (magnitude as u32) % 2 == 0 {
             return self.first
         }                    
         self.second
     }
     
     fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color {        
-        let obj_point = object.get_inverse_transformation() * world_point;
-            
-    
+        let obj_point = object.get_inverse_transformation() * world_point;                
         let pattern_point = &self.inverse_transformation * &obj_point;
 
-        unsafe {
+        /* unsafe {
             static mut smallest_obj_x: f32 = 1000_f32;;
             static mut bigest_obj_x: f32 = -1000_f32;;
             smallest_obj_x = f32::min(smallest_obj_x, pattern_point.x);
             bigest_obj_x = f32::max(bigest_obj_x, pattern_point.x);
             println!("Smallest x: {}. Biggest x: {}", smallest_obj_x, bigest_obj_x);
-        }
+
+            static mut smallest_obj_z: f32 = 1000_f32;;
+            static mut bigest_obj_z: f32 = -1000_f32;;
+            smallest_obj_z = f32::min(smallest_obj_z, pattern_point.z);
+            bigest_obj_z = f32::max(bigest_obj_z, pattern_point.z);
+            println!("Smallest z: {}. Biggest z: {}", smallest_obj_z, bigest_obj_z);
+        } */
         self.color_at(&pattern_point)
     }
 
