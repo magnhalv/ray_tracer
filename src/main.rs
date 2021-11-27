@@ -1,5 +1,8 @@
 extern crate minifb;
 
+use crate::matrix::inverse4;
+use crate::pattern::Pattern;
+use crate::pattern::CheckerPattern;
 use crate::pattern::RingPattern;
 use crate::pattern::GradientPattern;
 use crate::camera::render;
@@ -36,15 +39,27 @@ use ray::Ray;
 use sphere::Sphere;
 use tuple::Tuple;
 
-const DIM_X: usize = 800;
-const DIM_Y: usize = 400;
+const DIM_X: usize = 1600;
+const DIM_Y: usize = 800;
 
 fn main() {
+    /* Floor  */
     let mut floor = Plane::new();
     //floor.set_transformation(Matrix4::identity().(10_f32, 0.01_f32, 10_f32));
     floor.material.color = Color::new(1_f32, 0.9_f32, 0.9_f32);
     floor.material.specular = 0.3_f32;
     floor.material.diffuse = 0.7_f32;
+    floor.set_transformation(Matrix4::identity().scale(5_f32, 5_f32, 5_f32));
+    let mut floorPattern = CheckerPattern {
+        first: WHITE,
+        second: BLACK,
+        inverse_transformation: Matrix4::identity()
+    };    
+
+    floorPattern.set_transform(&Matrix4::identity().scale(1_f32, 1_f32, 1_f32));    
+    floor.material.pattern = Some(Box::new(floorPattern));
+
+    /* Middle  */
     let mut middle = Sphere::new(4);
     middle.set_transformation(
         Matrix4::identity()
@@ -54,39 +69,53 @@ fn main() {
     middle.material.color = Color::new(128_f32, 0_f32, 128_f32);
     middle.material.diffuse = 0.7_f32;
     middle.material.specular = 0.3_f32;
-    middle.material.pattern = Some(Box::new(RingPattern {
+    let mut middlePattern = StripePattern {
         first: Color::new(0_f32, 0.4_f32, 0.0_f32),
         second: Color::new(0.4_f32, 0.8_f32, 0.4_f32),
         inverse_transformation: Matrix4::identity()
-            .scale(7.5_f32, 7.5_f32, 1_f32)
-    }));
+    };    
+    middlePattern.set_transform(&Matrix4::identity().scale(0.2_f32, 0.2_f32, 0.2_f32));    
+    middle.material.pattern = Some(Box::new(middlePattern));
+
+    
+    
+    //middle.material.pattern = Some(Box::new(floorPattern));
     
     let mut right = Sphere::new(5);
     right.set_transformation(
         Matrix4::identity()
             .translate(15_f32, 5_f32, -5_f32)
             .scale(5_f32, 5_f32, 5_f32),
-    );
-    right.material.color = Color::new(0.5_f32, 0.5_f32, 1_f32);
+    );    
     right.material.diffuse = 0.7_f32;
     right.material.specular = 0.3_f32;
-    right.material.pattern = Some(Box::new(GradientPattern {
+    let mut right_pattern = GradientPattern {
         first: Color::new(1_f32, 0.0_f32, 0.0_f32),
         second: Color::new(0.0_f32, 0.0_f32, 1.0_f32),
         inverse_transformation: Matrix4::identity()
-            .scale(1_f32, 1_f32, 1_f32)
-    }));
+    };    
+    right_pattern.set_transform(&Matrix4::identity().translate(1_f32, 0_f32, 0_f32).scale(2_f32, 1_f32, 1_f32));    
+    right.material.pattern = Some(Box::new(right_pattern));
         
+    /* LEFT */
+
     let mut left = Sphere::new(6);
     left.set_transformation(
         Matrix4::identity()
-            .translate(-15_f32, 3.3_f32, -7.5_f32)
-            .scale(3.3_f32, 3.3_f32, 3.3_f32),
+            .translate(-15_f32, 5_f32, -5.5_f32)
+            .scale(5_f32, 5_f32, 5_f32),
     );
-    left.material.color = Color::new(1_f32, 1_f32, 0.0_f32);
     left.material.diffuse = 0.7_f32;
     left.material.specular = 0.3_f32;
+    let mut left_pattern = RingPattern {
+        first: Color::new(0_f32, 0.4_f32, 0.0_f32),
+        second: Color::new(0.4_f32, 0.8_f32, 0.4_f32),
+        inverse_transformation: Matrix4::identity()
+    };    
+    left_pattern.set_transform(&Matrix4::identity().translate(-1_f32, 0_f32, -1_f32));    
+    left.material.pattern = Some(Box::new(left_pattern));
 
+    // REST
     let light = PointLight::new(
         Tuple::point(-100_f32, 100_f32, -100_f32),
         Color::new(1_f32, 1_f32, 1_f32),

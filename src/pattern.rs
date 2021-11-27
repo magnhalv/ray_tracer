@@ -9,7 +9,7 @@ use crate::Shape;
 
 pub trait Pattern {
     fn color_at(&self, point: &Tuple) -> Color;
-    fn color_at_obj(&self, object: &Shape, world_point: &Tuple) -> Color;
+    fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color;
     fn set_transform(&mut self, transform: &Matrix4);
 }
 
@@ -30,14 +30,14 @@ impl StripePattern {
 }
 
 impl Pattern for StripePattern {    
-    fn color_at(&self, point: &Tuple) -> Color { 
-        if (point.x.abs() as i32) % 2 == 0 {
+    fn color_at(&self, point: &Tuple) -> Color {         
+        if (point.x.floor() as i32) % 2 == 0 {
             return self.first
         }
         self.second
     }
     
-    fn color_at_obj(&self, object: &Shape, world_point: &Tuple) -> Color {
+    fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color {
         let obj_point = object.get_inverse_transformation() * world_point;
         let pattern_point = &self.inverse_transformation * &obj_point;
         self.color_at(&pattern_point)
@@ -56,13 +56,14 @@ pub struct GradientPattern {
 
 impl Pattern for GradientPattern {    
     fn color_at(&self, point: &Tuple) -> Color { 
+        //println!("X: {}", point.x);
         let distance = self.second - self.first;
-        let x = point.x.abs();
+        let x = point.x;
         let fraction = x - x.floor();
         self.first + (distance * fraction)
     }
     
-    fn color_at_obj(&self, object: &Shape, world_point: &Tuple) -> Color {
+    fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color {
         let obj_point = object.get_inverse_transformation() * world_point;
         let pattern_point = &self.inverse_transformation * &obj_point;
         self.color_at(&pattern_point)
@@ -81,7 +82,44 @@ pub struct RingPattern {
 
 impl Pattern for RingPattern {    
     fn color_at(&self, point: &Tuple) -> Color { 
-        let magnitude = (point.x.powf(2_f32) + point.z.powf(2_f32)).sqrt();
+        let magnitude = ((point.x.powf(2_f32) + point.z.powf(2_f32)).sqrt()).floor();
+        //println!("Magnitude: {}. x: {}, z: {}", magnitude, point.x, point.z);           
+        if (magnitude as i32) % 2 == 0 {
+            return self.first
+        }                    
+        self.second
+    }
+    
+    fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color {        
+        let obj_point = object.get_inverse_transformation() * world_point;
+            
+    
+        let pattern_point = &self.inverse_transformation * &obj_point;
+
+        unsafe {
+            static mut smallest_obj_x: f32 = 1000_f32;;
+            static mut bigest_obj_x: f32 = -1000_f32;;
+            smallest_obj_x = f32::min(smallest_obj_x, pattern_point.x);
+            bigest_obj_x = f32::max(bigest_obj_x, pattern_point.x);
+            println!("Smallest x: {}. Biggest x: {}", smallest_obj_x, bigest_obj_x);
+        }
+        self.color_at(&pattern_point)
+    }
+
+    fn set_transform(&mut self, transform: &Matrix4) {
+        self.inverse_transformation = inverse4(transform);
+    }
+}
+
+pub struct CheckerPattern {
+    pub first: Color,
+    pub second: Color,
+    pub inverse_transformation: Matrix4
+}
+
+impl Pattern for CheckerPattern {    
+    fn color_at(&self, point: &Tuple) -> Color { 
+        let magnitude = point.x.floor() + point.z.floor() + point.y.abs().floor();        
         if (magnitude as i32) % 2 == 0 {
             return self.first
         }
@@ -156,4 +194,18 @@ fn a_gradient_linerarly_interpolates_between_colors() {
     assert_eq!(pattern.color_at(&Tuple::point(0.25_f32, 0_f32, 0_f32)), Color::new(0.75_f32, 0.75_f32, 0.75_f32));
     assert_eq!(pattern.color_at(&Tuple::point(0.50_f32, 0_f32, 0_f32)), Color::new(0.5_f32, 0.5_f32, 0.5_f32));
     assert_eq!(pattern.color_at(&Tuple::point(0.75_f32, 0_f32, 0_f32)), Color::new(0.25_f32, 0.25_f32, 0.25_f32));
+}
+
+#[test]
+fn a_ring_shoud_extend_in_both_x_and_y() {
+    let pattern = RingPattern {
+        first: WHITE,
+        second: BLACK,
+        inverse_transformation: Matrix4::identity()
+    };
+
+    assert_eq!(pattern.color_at(&Tuple::point(0_f32, 0_f32, 0_f32)), WHITE);
+    assert_eq!(pattern.color_at(&Tuple::point(1_f32, 0_f32, 0_f32)), BLACK);
+    assert_eq!(pattern.color_at(&Tuple::point(0_f32, 0_f32, 1_f32)), BLACK);
+    assert_eq!(pattern.color_at(&Tuple::point(0.708_f32, 0_f32, 0.708_f32)), BLACK);
 }
