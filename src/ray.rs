@@ -1,3 +1,5 @@
+use crate::tuple::reflect;
+use crate::Plane;
 use crate::transformation::scaling;
 use crate::transformation::translation;
 use crate::Sphere;
@@ -49,7 +51,8 @@ pub struct Computation<'a> {
     pub over_point: Tuple, // used to avoid shadow acne
     pub eye_direction: Tuple,
     pub surface_normalv:  Tuple,    
-    pub is_inside: bool
+    pub is_inside: bool,
+    pub reflectv: Tuple
 }
 
 // TODO: Find better name for this.
@@ -65,7 +68,7 @@ pub struct Computation<'a> {
     }
 
     let over_point = point + (SHADOW_EPSILON * surface_normalv);
-
+    let reflectv = reflect(&ray.direction, &surface_normalv);
     Computation {        
         object: i.obj,
         t: i.t,
@@ -73,7 +76,8 @@ pub struct Computation<'a> {
         over_point,
         eye_direction,
         surface_normalv,
-        is_inside
+        is_inside,
+        reflectv
     }
 } 
 
@@ -344,4 +348,16 @@ fn the_hit_should_offset_the_point_to_avoid_acne() {
     let comps = prepare_computations(&i, &ray);
     assert!(comps.over_point.z < -SHADOW_EPSILON/2_f32);
     assert!(comps.point.z > comps.over_point.z);
+}
+
+#[test]
+fn precomputing_the_reflection_vector() {
+    let shape = Plane::new();
+    let ray = Ray::new(Tuple::point(0_f32, 1_f32, -1_f32), Tuple::vector(0_f32, -(2_f32.sqrt()/2_f32), 2_f32.sqrt()/2_f32));
+    let intersection = Intersection {
+        obj: &shape,
+        t: 2_f32.sqrt()
+    };
+    let comps = prepare_computations(&intersection, &ray);
+    assert_eq!(comps.reflectv, Tuple::vector(0_f32, 2_f32.sqrt()/2_f32, 2_f32.sqrt()/2_f32));
 }

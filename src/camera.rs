@@ -68,14 +68,20 @@ impl Camera {
 
 pub fn render(camera: &Camera, world: &World) -> Canvas {
     let mut canvas = Canvas::new(camera.hsize, camera.vsize);
-
+    print!("{}[2J", 27 as char);
+    print!("Progress: ");
+    let total = camera.vsize*camera.hsize;
     for y in 0..camera.vsize {
         for x in 0..camera.hsize {
             let ray = camera.ray_for_pixel(x, y);
-            let color = color_at(world, &ray);
-            canvas.set_pixel(x, y, color);
+            let color = color_at(world, &ray, 5);
+            canvas.set_pixel(x, y, color);            
         }
+        print!("{esc}[1;11H", esc = 27 as char);
+        print!("{}%", ((y*camera.hsize)*100/total) as u32);
     }
+    print!("{esc}[1;11H", esc = 27 as char);
+    print!("100%");
     canvas
 }
 

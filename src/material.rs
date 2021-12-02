@@ -13,13 +13,14 @@ pub struct Material {
     pub diffuse: f32,
     pub specular: f32,
     pub shininess: f32,
-    pub color: Color,
+    pub reflective: f32,
+    pub color: Color,    
     pub pattern: Option<Box<dyn Pattern>>
 }
 
 impl Material {
     pub fn default() -> Material {
-        Material { ambient: 0.1_f32, diffuse: 0.9_f32, specular: 0.9_f32, shininess: 200_f32, color: Color::new(1_f32, 1_f32, 1_f32), pattern: None }
+        Material { ambient: 0.1_f32, diffuse: 0.9_f32, specular: 0.9_f32, shininess: 200_f32, reflective: 0_f32, color: Color::new(1_f32, 1_f32, 1_f32), pattern: None }
     }
 }
 

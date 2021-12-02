@@ -38,17 +38,27 @@ use matrix::Matrix4;
 use ray::Ray;
 use sphere::Sphere;
 use tuple::Tuple;
+ 
+const DIM_X: usize = 2560;
+const DIM_Y: usize = 1440;
+/* const DIM_X: usize = 800;
+const DIM_Y: usize = 400;  */
 
-const DIM_X: usize = 800;
-const DIM_Y: usize = 400;
+fn main() {     
+    
+    let mut wall = Plane::new();
+    wall.set_transformation(Matrix4::identity().translate(0_f32, 0_f32, 20_f32).rotate_x(PI/4_f32));
+    //floor.set_transformation(Matrix4::identity().(10_f32, 0.01_f32, 10_f32));
+    wall.material.color = Color::new(0.3_f32, 0.3_f32, 0.3_f32);
+    wall.material.reflective = 0.3_f32;
 
-fn main() {
     /* Floor  */
     let mut floor = Plane::new();
     //floor.set_transformation(Matrix4::identity().(10_f32, 0.01_f32, 10_f32));
     floor.material.color = Color::new(1_f32, 0.9_f32, 0.9_f32);
     floor.material.specular = 0.3_f32;
     floor.material.diffuse = 0.7_f32;
+    floor.material.reflective = 0.5_f32;
     floor.set_transformation(Matrix4::identity().scale(5_f32, 5_f32, 5_f32));
     let mut floorPattern = CheckerPattern {
         first: WHITE,
@@ -89,6 +99,7 @@ fn main() {
     );    
     right.material.diffuse = 0.7_f32;
     right.material.specular = 0.3_f32;
+    right.material.reflective = 0.5_f32;
     let mut right_pattern = GradientPattern {
         first: Color::new(1_f32, 0.0_f32, 0.0_f32),
         second: Color::new(0.0_f32, 0.0_f32, 1.0_f32),
@@ -106,15 +117,17 @@ fn main() {
             .scale(5_f32, 5_f32, 5_f32)
             .rotate_x(PI/2_f32)
     );
+    left.material.color = Color::new(0.2_f32, 0.2_f32, 0.8_f32);
     left.material.diffuse = 0.7_f32;
     left.material.specular = 0.3_f32;
-    let mut left_pattern = RingPattern {
+    left.material.reflective = 0.8_f32;
+    /* let mut left_pattern = RingPattern {
         first: Color::new(0_f32, 0.4_f32, 0.0_f32),
         second: Color::new(0.4_f32, 0.8_f32, 0.4_f32),
         inverse_transformation: Matrix4::identity()
     };    
     left_pattern.set_transform(&Matrix4::identity().translate(-1_f32, -1_f32, -1_f32).scale(0.2_f32, 0.2_f32, 0.2_f32));    
-    left.material.pattern = Some(Box::new(left_pattern));
+    left.material.pattern = Some(Box::new(left_pattern)); */
 
     // REST
     let light = PointLight::new(
@@ -122,10 +135,11 @@ fn main() {
         Color::new(1_f32, 1_f32, 1_f32),
     );
     let mut world = World::new(light);
+    //world.objects.push(&wall);
     world.objects.push(&floor);
     world.objects.push(&middle);
     world.objects.push(&left);
-    world.objects.push(&right);
+    world.objects.push(&right);    
 
     let mut camera = Camera::new(DIM_X, DIM_Y, PI / 3_f32);
     let from = Tuple::point(0_f32, 15_f32, -50_f32);
@@ -134,8 +148,7 @@ fn main() {
     camera.set_transform(&view_transform(&from, &to, &up));
     let canvas = render(&camera, &world);
 
-    canvas::canvas_to_file(&canvas, "test.ppm".to_string());
-
+    canvas::canvas_to_file(&canvas, "test.ppm".to_string());    
     let mut buffer: Vec<u32> = vec![0; DIM_X * DIM_Y];
 
     let mut window = Window::new("Test - ESC to exit", DIM_X, DIM_Y, WindowOptions::default())
