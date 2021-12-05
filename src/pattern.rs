@@ -24,7 +24,7 @@ impl StripePattern {
         Some(Box::new(StripePattern { first, second, inverse_transformation: Matrix4::identity() }))
     }
 
-    fn test_default() -> StripePattern {
+    pub fn test_default() -> StripePattern {
         StripePattern { first: WHITE, second: BLACK, inverse_transformation: Matrix4::identity() }
     }
 }

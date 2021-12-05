@@ -9,13 +9,15 @@ use crate::Ray;
 use crate::Tuple;
 
 pub struct Plane {
+    pub id: u32,
     pub material: Material,
     pub inverse_transformation: Matrix4,
 }
 
 impl Plane {
-    pub fn new() -> Plane {
+    pub fn new(id: u32) -> Plane {
         Plane {
+            id,
             material: Material::default(),
             inverse_transformation: Matrix4::identity()
         }
@@ -54,13 +56,13 @@ impl Shape for Plane {
     }
 
     fn get_id(&self) -> u32 {
-        0_u32
+        self.id
     }
 }
 
 #[test]
 fn the_normal_of_a_plane_is_constant_everywhere() {
-    let plane = Plane::new();
+    let plane = Plane::new(1);
     let n1 = plane.normal_at(&Tuple::point(0_f32, 0_f32, 0_f32));
     let n2 = plane.normal_at(&Tuple::point(10_f32, 0_f32, -10_f32));
     let n3 = plane.normal_at(&Tuple::point(-5_f32, 0_f32, 150_f32));
@@ -72,7 +74,7 @@ fn the_normal_of_a_plane_is_constant_everywhere() {
 
 #[test]
 fn intersect_with_a_ray_parallel_to_the_plane() {
-    let plane = Plane::new();
+    let plane = Plane::new(1);
     let ray = Ray::new(Tuple::point(0_f32, 10_f32, 0_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
     let xs = plane.intersections_by(&ray);
     assert_eq!(xs.len(), 0);
@@ -80,7 +82,7 @@ fn intersect_with_a_ray_parallel_to_the_plane() {
 
 #[test]
 fn intersect_with_a_coplanar_ray() {
-    let plane = Plane::new();
+    let plane = Plane::new(1);
     let ray = Ray::new(Tuple::point(0_f32, 0_f32, 0_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
     let xs = plane.intersections_by(&ray);
     assert_eq!(xs.len(), 0);
@@ -88,7 +90,7 @@ fn intersect_with_a_coplanar_ray() {
 
 #[test]
 fn a_ray_intersecting_a_plane_from_above() {
-    let plane = Plane::new();
+    let plane = Plane::new(1);
     let ray = Ray::new(Tuple::point(0_f32, 1_f32, 0_f32), Tuple::vector(0_f32, -1_f32, 0_f32));
     let xs = plane.intersections_by(&ray);
     assert_eq!(xs.len(), 1);
@@ -97,7 +99,7 @@ fn a_ray_intersecting_a_plane_from_above() {
 
 #[test]
 fn a_ray_intersecting_a_plane_from_below() {
-    let plane = Plane::new();
+    let plane = Plane::new(1);
     let ray = Ray::new(Tuple::point(0_f32, -1_f32, 0_f32), Tuple::vector(0_f32, 1_f32, 0_f32));
     let xs = plane.intersections_by(&ray);
     assert_eq!(xs.len(), 1);

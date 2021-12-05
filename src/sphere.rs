@@ -1,22 +1,39 @@
+use crate::material::Material;
+use crate::matrix::{inverse4, Matrix4};
 use crate::ray::transform;
-use crate::Ray;
 use crate::ray::Intersection;
 use crate::shape::Shape;
-use crate::material::Material;
+use crate::Ray;
 use crate::Tuple;
-use crate::matrix::{{Matrix4, inverse4}};
 
 pub struct Sphere {
     pub id: u32,
     pub transformation: Matrix4,
     pub inverse_transformation: Matrix4,
-    pub material: Material
+    pub material: Material,
 }
 
 impl Sphere {
     pub fn new(id: u32) -> Sphere {
-        Sphere { id, transformation: Matrix4::identity(), inverse_transformation: Matrix4::identity(), material: Material::default() }
-    }    
+        Sphere {
+            id,
+            transformation: Matrix4::identity(),
+            inverse_transformation: Matrix4::identity(),
+            material: Material::default(),
+        }
+    }
+
+    pub fn new_glass(id: u32) -> Sphere {
+        let mut sphere = Sphere {
+            id,
+            transformation: Matrix4::identity(),
+            inverse_transformation: Matrix4::identity(),
+            material: Material::default(),
+        };
+        sphere.material.transparency = 1.0_f32;
+        sphere.material.refractive_index = 1.5_f32;
+        sphere
+    }
 }
 
 impl Shape for Sphere {
@@ -27,7 +44,7 @@ impl Shape for Sphere {
 
     fn normal_at(&self, world_point: &Tuple) -> Tuple {
         let object_point = &self.inverse_transformation * world_point;
-        let object_normal = (object_point - Tuple::point(0_f32, 0_f32, 0_f32)).normalize();        
+        let object_normal = (object_point - Tuple::point(0_f32, 0_f32, 0_f32)).normalize();
         let mut world_normal = &self.inverse_transformation.transpose() * &object_normal;
         world_normal.w = 0_f32; // Hack. Should actually find submatrix 3x3, and multiply with the inverse of that, to avoid messing with w. But this is fine and faster.
         world_normal.normalize()
@@ -36,7 +53,6 @@ impl Shape for Sphere {
     fn get_material(&self) -> &Material {
         &self.material
     }
-
 
     fn intersections_by<'a>(&'a self, ray: &Ray) -> Vec<Intersection<'a>> {
         // A point on a spehere exists so that
@@ -53,9 +69,7 @@ impl Shape for Sphere {
         let a = ray.direction.dot(&ray.direction);
         let b = 2_f32 * ray.direction.dot(&shape_to_ray);
         let c = shape_to_ray.dot(&shape_to_ray) - 1_f32;
-    
         let discriminant = b.powf(2_f32) - 4_f32 * a * c;
-    
         if discriminant < 0_f32 {
             return result;
         }
@@ -63,7 +77,6 @@ impl Shape for Sphere {
             obj: self,
             t: (-b - discriminant.sqrt()) / (2_f32 * a),
         };
-    
         let i2 = Intersection {
             obj: self,
             t: (-b + discriminant.sqrt()) / (2_f32 * a),
@@ -106,14 +119,29 @@ fn the_normal_on_a_sphere_at_a_point_on_the_z_axis() {
 #[test]
 fn the_normal_on_a_sphere_at_a_nonaxial_point() {
     let sphere = Sphere::new(1);
-    let normal = sphere.normal_at(&Tuple::point(3_f32.sqrt()/3_f32, 3_f32.sqrt()/3_f32, 3_f32.sqrt()/3_f32));
-    assert_eq!(normal, Tuple::vector(3_f32.sqrt()/3_f32, 3_f32.sqrt()/3_f32, 3_f32.sqrt()/3_f32));
+    let normal = sphere.normal_at(&Tuple::point(
+        3_f32.sqrt() / 3_f32,
+        3_f32.sqrt() / 3_f32,
+        3_f32.sqrt() / 3_f32,
+    ));
+    assert_eq!(
+        normal,
+        Tuple::vector(
+            3_f32.sqrt() / 3_f32,
+            3_f32.sqrt() / 3_f32,
+            3_f32.sqrt() / 3_f32
+        )
+    );
 }
 
 #[test]
 fn the_normal_on_a_sphere_is_normalized() {
     let sphere = Sphere::new(1);
-    let normal = sphere.normal_at(&Tuple::point(3_f32.sqrt()/3_f32, 3_f32.sqrt()/3_f32, 3_f32.sqrt()/3_f32));
+    let normal = sphere.normal_at(&Tuple::point(
+        3_f32.sqrt() / 3_f32,
+        3_f32.sqrt() / 3_f32,
+        3_f32.sqrt() / 3_f32,
+    ));
     assert_eq!(normal, normal.normalize());
 }
 
@@ -128,7 +156,15 @@ fn the_normal_on_a_sphere_translated_sphere() {
 #[test]
 fn the_normal_on_a_sphere_transformed_sphere() {
     let mut sphere = Sphere::new(1);
-    sphere.set_transformation(Matrix4::identity().scale(1_f32, 0.5_f32, 1_f32).rotate_z(core::f32::consts::PI/5_f32));
-    let normal = sphere.normal_at(&Tuple::point(0_f32, 2_f32.sqrt()/2_f32, -2_f32.sqrt()/2_f32));
+    sphere.set_transformation(
+        Matrix4::identity()
+            .scale(1_f32, 0.5_f32, 1_f32)
+            .rotate_z(core::f32::consts::PI / 5_f32),
+    );
+    let normal = sphere.normal_at(&Tuple::point(
+        0_f32,
+        2_f32.sqrt() / 2_f32,
+        -2_f32.sqrt() / 2_f32,
+    ));
     assert_eq!(normal, Tuple::vector(0_f32, 0.97014_f32, -0.24254_f32));
 }
