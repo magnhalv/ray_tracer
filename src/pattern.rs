@@ -7,7 +7,7 @@ use crate::Tuple;
 use crate::Color;
 use crate::Shape;
 
-pub trait Pattern {
+pub trait Pattern: Send + Sync {
     fn color_at(&self, point: &Tuple) -> Color;
     fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color;
     fn set_transform(&mut self, transform: &Matrix4);

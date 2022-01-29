@@ -4,7 +4,7 @@ use crate::Matrix4;
 use crate::Ray;
 use crate::Tuple;
 
-pub trait Shape {
+pub trait Shape: Sync + Send {
     fn get_id(&self) -> u32;
     fn set_transformation(&mut self, t: Matrix4);
     fn get_inverse_transformation(&self) -> &Matrix4;
