@@ -11,8 +11,8 @@ use crate::Tuple;
 use core::f32::consts::PI;
 
 pub struct Camera {
-    hsize: usize,
-    vsize: usize,
+    pub hsize: usize,
+    pub vsize: usize,
     field_of_view: f32,
     inverse_transform: Matrix4,
     half_height: f32,
@@ -83,6 +83,11 @@ pub fn render(camera: &Camera, world: &World) -> Canvas {
     print!("{esc}[1;11H", esc = 27 as char);
     print!("100%");
     canvas
+}
+
+pub fn render_at(x: usize, y: usize, camera: &Camera, world: &World) -> Color {
+    let ray = camera.ray_for_pixel(x, y);
+    return color_at(world, &ray, 5);
 }
 
 #[test]

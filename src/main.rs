@@ -1,7 +1,8 @@
 extern crate minifb;
+use std::{thread, time::Duration};
 
-use crate::camera::render;
 use crate::camera::Camera;
+use crate::camera::{render, render_at};
 use crate::color::BLACK;
 use crate::color::WHITE;
 use crate::material::GLASS_REFRACTIVE_INDEX;
@@ -172,9 +173,8 @@ fn main() {
     let to = Tuple::point(0_f32, 1_f32, 50_f32);
     let up = Tuple::vector(0_f32, 1_f32, 0_f32);
     camera.set_transform(&view_transform(&from, &to, &up));
-    let canvas = render(&camera, &world);
+    //let canvas = render(&camera, &world);
 
-    canvas::canvas_to_file(&canvas, "test.ppm".to_string());
     let mut buffer: Vec<u32> = vec![0; DIM_X * DIM_Y];
 
     let mut window = Window::new("Test - ESC to exit", DIM_X, DIM_Y, WindowOptions::default())
@@ -185,21 +185,25 @@ fn main() {
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
+    let mut y = 0;    
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        let mut index = 0;
-        for i in buffer.iter_mut() {
-            let color = canvas.pixels[index];
-            let r = limit((color.red * 255.0_f32) as i32, 0, 255);
-            let g = limit((color.green * 255.0_f32) as i32, 0, 255);
-            let b = limit((color.blue * 255.0_f32) as i32, 0, 255);
-
-            let value = [0, r, g, b];
-            *i = u32::from_be_bytes(value);
-            index = index + 1;
+        if y < camera.vsize {
+            for x in 0..camera.hsize {
+                let color = render_at(x, y, &camera, &world);
+                let r = limit((color.red * 255.0_f32) as i32, 0, 255);
+                let g = limit((color.green * 255.0_f32) as i32, 0, 255);
+                let b = limit((color.blue * 255.0_f32) as i32, 0, 255);
+                let value = u32::from_be_bytes([0, r, g, b]);
+                buffer[y * camera.hsize + x] = value;
+            }
+            window.update_with_buffer(&buffer, DIM_X, DIM_Y).unwrap();
+            y = y + 1;
         }
-
-        // We unwrap here as we want this code to exit if it fails. Real applications may want to handle this in a different way
-        window.update_with_buffer(&buffer, DIM_X, DIM_Y).unwrap();
+        else {                        
+            thread::sleep(Duration::from_millis(100));            
+            // Need update to keep checing for key down
+            window.update_with_buffer(&buffer, DIM_X, DIM_Y).unwrap();
+        }
     }
 }
 
