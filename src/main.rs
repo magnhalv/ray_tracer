@@ -219,29 +219,14 @@ fn main() {
     let new_world = Arc::new(world);
     let new_camera = Arc::new(camera);
 
+    let num_threads = 18;  
+    let mut thread_buffers: Vec<Arc<Mutex<Vec<u32>>>> = vec![];
+    for _ in 0..num_threads {
+        thread_buffers.push(Arc::new(Mutex::new(vec![0; hsize])));
+    }
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
         let mut handles = vec![];        
-        let thread_buffers = vec![
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize])),
-            Arc::new(Mutex::new(vec![0; hsize]))
-        ]; 
-        let num_threads = thread_buffers.len();  
 
         if y < vsize {
             for thread in 0..num_threads {
