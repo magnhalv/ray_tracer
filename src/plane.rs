@@ -38,11 +38,11 @@ impl Shape for Plane {
     }
 
     fn intersections_by<'a>(&'a self, ray: &Ray) -> Vec<Intersection<'a>> {
+        let ray = transform(&ray, &self.inverse_transformation);        
         if ray.direction.y.abs() < EPSILON {
             return vec![];
         }
-
-        let ray = transform(&ray, &self.inverse_transformation);        
+        
         let i1 = Intersection {
             obj: self,
             t: -ray.origin.y / ray.direction.y
