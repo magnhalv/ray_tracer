@@ -9,9 +9,17 @@ use crate::pattern::Pattern;
 use crate::plane::Plane;
 use crate::shape::Shape;
 use crate::world::World;
+use crate::cube::Cube;
 use core::f32::consts::PI;
 
 pub fn generate_world() -> World {
+    let bone_color = Color::new(205.0/255.0, 197.0/255.0, 180.0/255.0);
+    let liliac_color = Color::new(181.0/255.0, 157.0/255.0, 164.0/255.0);
+    let metalic_color = Color::new(133.0/255.0, 117.0/255.0, 110.0/255.0);
+    let sepia_color = Color::new(109.0/255.0, 61.0/255.0, 20.0/255.0);
+    let dark_red_color = Color::new(85.0/255.0, 27.0/255.0, 20.0/255.0);
+
+
     let mut wall = Plane::new(1);
     wall.set_transformation(
         Matrix4::identity()
@@ -28,8 +36,8 @@ pub fn generate_world() -> World {
     wall.material.shininess = 300.0;
 
     let mut wall_pattern = CheckerPattern {
-        first: WHITE,
-        second: Color::new(0.0, 1.0, 0.0),
+        first: bone_color,
+        second: metalic_color,
         inverse_transformation: Matrix4::identity(),
     };
 
@@ -39,19 +47,19 @@ pub fn generate_world() -> World {
     /* Floor  */
     let mut floor = Plane::new(2);
     //floor.set_transformation(Matrix4::identity().(10_f32, 0.01_f32, 10_f32));
-    //floor.material.color = Color::new(0.8_f32, 0.8_f32, 0.8_f32);
+    floor.material.color = metalic_color;
     floor.material.specular = 0.3_f32;
     floor.material.diffuse = 0.7_f32;
     floor.material.reflective = 0.0;
     floor.set_transformation(Matrix4::identity().scale(5_f32, 5_f32, 5_f32));
-    let mut floor_pattern = CheckerPattern {
+    /* let mut floor_pattern = CheckerPattern {
         first: WHITE,
         second: BLACK,
         inverse_transformation: Matrix4::identity(),
     };
 
-    floor_pattern.set_transform(&Matrix4::identity().scale(1_f32, 1_f32, 1_f32));
-    floor.material.pattern = Some(Box::new(floor_pattern));
+    floor_pattern.set_transform(&Matrix4::identity().scale(1_f32, 1_f32, 1_f32)); */
+    //floor.material.pattern = Some(Box::new(floor_pattern));
 
     /* Middle  */
     let mut middle = Sphere::new(3);
@@ -100,14 +108,14 @@ pub fn generate_world() -> World {
     right.material.pattern = Some(Box::new(right_pattern));
     /* LEFT */
 
-    let mut left = Sphere::new(5);
+    let mut left = Cube::new(5);
     left.set_transformation(
         Matrix4::identity()
             .translate(-15_f32, 5_f32, -5.5_f32)
             .scale(5_f32, 5_f32, 5_f32)
             .rotate_x(PI / 2_f32),
     );
-    left.material.color = Color::new(0.4_f32, 0.4_f32, 0.4_f32);
+    left.material.color = sepia_color;
     left.material.ambient = 0.1_f32;
     left.material.diffuse = 0.4_f32;
     left.material.specular = 0.9_f32;

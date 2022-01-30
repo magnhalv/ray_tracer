@@ -21,6 +21,7 @@ mod plane;
 mod ray;
 mod shape;
 mod sphere;
+mod cube;
 mod transformation;
 mod tuple;
 mod world;

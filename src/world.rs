@@ -131,10 +131,8 @@ mod tests {
     use crate::Shape;
     use crate::lighting::{PointLight};
     use crate::Matrix4;
-    use crate::color::{BLACK, WHITE, Color};
+    use crate::color::{BLACK, Color};
     use crate::plane::Plane;
-    use crate::pattern::StripePattern;
-    use crate::pattern::pattern_tests;
     use crate::pattern::TestPattern;
 
     impl World {
