@@ -38,14 +38,12 @@ const DIM_Y: usize = 540;
 
 fn main() {
     let world = generate_world();
-    
 
     let mut camera = Camera::new(DIM_X, DIM_Y, PI / 3_f32);
     let from = Tuple::point(30_f32, 20_f32, -60_f32);
     let to = Tuple::point(0_f32, 1_f32, 50_f32);
     let up = Tuple::vector(0_f32, 1_f32, 0_f32);
-    camera.set_transform(&view_transform(&from, &to, &up));
-    //let canvas = render(&camera, &world);
+    camera.set_transform(&view_transform(&from, &to, &up));    
 
     let mut color_buffer: Vec<u32> = vec![0; DIM_X * DIM_Y];
 

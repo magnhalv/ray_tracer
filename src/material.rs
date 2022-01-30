@@ -41,12 +41,12 @@ impl Material {
 mod material_tests {
     use crate::color::BLACK;
     use crate::color::WHITE;
-    use crate::lighting;
+    use crate::lighting::lighting;
     use crate::material::Material;
     use crate::pattern::StripePattern;
     use crate::Color;
     use crate::PointLight;
-    use crate::Sphere;
+    use crate::sphere::Sphere;
     use crate::Tuple;
 
     #[test]

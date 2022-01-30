@@ -127,7 +127,7 @@ mod tests {
     use crate::ray::{Intersection, Ray};
     use crate::world::{intersect_world, prepare_computations, shade_hit, World};
     use crate::Color;
-    use crate::Sphere;
+    use crate::sphere::Sphere;
     use crate::Tuple;
     use crate::Shape;
     use crate::lighting::{PointLight};

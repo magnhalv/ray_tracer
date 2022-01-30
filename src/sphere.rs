@@ -86,7 +86,7 @@ impl Shape for Sphere {
 #[cfg(test)]
 mod tests {
 
-    use crate::Sphere;
+    use crate::sphere::Sphere;
     use crate::Shape;
     use crate::Tuple;
     use crate::Matrix4;

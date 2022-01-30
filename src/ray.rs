@@ -3,6 +3,7 @@ use crate::matrix::Matrix4;
 use crate::shape::Shape;
 use crate::tuple::reflect;
 use crate::tuple::Tuple;
+use std::cmp::Ordering;
 
 pub struct Ray {
     pub origin: Tuple,
@@ -12,6 +13,31 @@ pub struct Ray {
 pub struct Intersection<'a> {
     pub obj: &'a dyn Shape,
     pub t: f32,
+}
+
+impl<'a> PartialEq for Intersection<'a> {
+    fn eq(&self, other: &Intersection<'a>) -> bool {
+        self.t == other.t && self.obj.get_id() == other.obj.get_id()
+    }
+}
+
+impl<'a> PartialOrd for Intersection<'a> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+       if self.t > other.t {
+           return Some(Ordering::Greater)
+       }
+       Some(Ordering::Less)
+    }
+}
+
+impl<'a> Eq for Intersection<'a> {
+    
+}
+
+impl<'a> Ord for Intersection<'a> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
+    }
 }
 
 impl Ray {
@@ -27,8 +53,8 @@ impl Ray {
 pub fn hit<'a>(intersections: &'a Vec<Intersection<'a>>) -> Option<&'a Intersection<'a>> {
     intersections
         .iter()
-        .filter(|i| i.t >= 0_f32)
-        .next()
+        .filter(|i| i.t >= 0_f32)        
+        .min()
 }
 
 pub fn transform(ray: &Ray, transformation: &Matrix4) -> Ray {
@@ -144,9 +170,9 @@ mod ray_tests {
     use crate::transformation::scaling;
     use crate::transformation::translation;
     use crate::Matrix4;
-    use crate::Plane;
+    use crate::plane::Plane;
     use crate::Ray;
-    use crate::Sphere;
+    use crate::sphere::Sphere;
     use crate::Tuple;
     use crate::material::Material;
 

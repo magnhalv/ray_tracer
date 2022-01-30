@@ -62,7 +62,7 @@ impl Shape for Plane {
 
 #[cfg(test)]
 mod tests {    
-    use crate::Plane;
+    use crate::plane::Plane;
     use crate::Shape;
     use crate::Tuple;
     use crate::Ray;

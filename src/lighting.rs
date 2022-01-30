@@ -67,7 +67,7 @@ mod lighting_tests {
     use crate::color::Color;
     use crate::material::Material;
     use crate::tuple::Tuple;
-    use crate::Sphere;
+    use crate::sphere::Sphere;
     use crate::lighting::{PointLight, lighting};
 
     #[test]
