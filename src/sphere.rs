@@ -22,18 +22,6 @@ impl Sphere {
             material: Material::default(),
         }
     }
-
-    pub fn new_glass(id: u32) -> Sphere {
-        let mut sphere = Sphere {
-            id,
-            transformation: Matrix4::identity(),
-            inverse_transformation: Matrix4::identity(),
-            material: Material::default(),
-        };
-        sphere.material.transparency = 1.0_f32;
-        sphere.material.refractive_index = 1.5_f32;
-        sphere
-    }
 }
 
 impl Shape for Sphere {
@@ -95,76 +83,86 @@ impl Shape for Sphere {
     }
 }
 
-#[test]
-fn the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
-    let sphere = Sphere::new(1);
-    let normal = sphere.normal_at(&Tuple::point(1_f32, 0_f32, 0_f32));
-    assert_eq!(normal, Tuple::vector(1_f32, 0_f32, 0_f32));
-}
+#[cfg(test)]
+mod tests {
 
-#[test]
-fn the_normal_on_a_sphere_at_a_point_on_the_y_axis() {
-    let sphere = Sphere::new(1);
-    let normal = sphere.normal_at(&Tuple::point(0_f32, 1_f32, 0_f32));
-    assert_eq!(normal, Tuple::vector(0_f32, 1_f32, 0_f32));
-}
+    use crate::Sphere;
+    use crate::Shape;
+    use crate::Tuple;
+    use crate::Matrix4;
 
-#[test]
-fn the_normal_on_a_sphere_at_a_point_on_the_z_axis() {
-    let sphere = Sphere::new(1);
-    let normal = sphere.normal_at(&Tuple::point(0_f32, 0_f32, 1_f32));
-    assert_eq!(normal, Tuple::vector(0_f32, 0_f32, 1_f32));
-}
-
-#[test]
-fn the_normal_on_a_sphere_at_a_nonaxial_point() {
-    let sphere = Sphere::new(1);
-    let normal = sphere.normal_at(&Tuple::point(
-        3_f32.sqrt() / 3_f32,
-        3_f32.sqrt() / 3_f32,
-        3_f32.sqrt() / 3_f32,
-    ));
-    assert_eq!(
-        normal,
-        Tuple::vector(
+    #[test]
+    fn the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
+        let sphere = Sphere::new(1);
+        let normal = sphere.normal_at(&Tuple::point(1_f32, 0_f32, 0_f32));
+        assert_eq!(normal, Tuple::vector(1_f32, 0_f32, 0_f32));
+    }
+    
+    #[test]
+    fn the_normal_on_a_sphere_at_a_point_on_the_y_axis() {
+        let sphere = Sphere::new(1);
+        let normal = sphere.normal_at(&Tuple::point(0_f32, 1_f32, 0_f32));
+        assert_eq!(normal, Tuple::vector(0_f32, 1_f32, 0_f32));
+    }
+    
+    #[test]
+    fn the_normal_on_a_sphere_at_a_point_on_the_z_axis() {
+        let sphere = Sphere::new(1);
+        let normal = sphere.normal_at(&Tuple::point(0_f32, 0_f32, 1_f32));
+        assert_eq!(normal, Tuple::vector(0_f32, 0_f32, 1_f32));
+    }
+    
+    #[test]
+    fn the_normal_on_a_sphere_at_a_nonaxial_point() {
+        let sphere = Sphere::new(1);
+        let normal = sphere.normal_at(&Tuple::point(
             3_f32.sqrt() / 3_f32,
             3_f32.sqrt() / 3_f32,
-            3_f32.sqrt() / 3_f32
-        )
-    );
-}
-
-#[test]
-fn the_normal_on_a_sphere_is_normalized() {
-    let sphere = Sphere::new(1);
-    let normal = sphere.normal_at(&Tuple::point(
-        3_f32.sqrt() / 3_f32,
-        3_f32.sqrt() / 3_f32,
-        3_f32.sqrt() / 3_f32,
-    ));
-    assert_eq!(normal, normal.normalize());
-}
-
-#[test]
-fn the_normal_on_a_sphere_translated_sphere() {
-    let mut sphere = Sphere::new(1);
-    sphere.set_transformation(Matrix4::identity().translate(0_f32, 1_f32, 0_f32));
-    let normal = sphere.normal_at(&Tuple::point(0_f32, 1.70711_f32, -0.70711_f32));
-    assert_eq!(normal, Tuple::vector(0_f32, 0.70711_f32, -0.70711_f32));
-}
-
-#[test]
-fn the_normal_on_a_sphere_transformed_sphere() {
-    let mut sphere = Sphere::new(1);
-    sphere.set_transformation(
-        Matrix4::identity()
-            .scale(1_f32, 0.5_f32, 1_f32)
-            .rotate_z(core::f32::consts::PI / 5_f32),
-    );
-    let normal = sphere.normal_at(&Tuple::point(
-        0_f32,
-        2_f32.sqrt() / 2_f32,
-        -2_f32.sqrt() / 2_f32,
-    ));
-    assert_eq!(normal, Tuple::vector(0_f32, 0.97014_f32, -0.24254_f32));
+            3_f32.sqrt() / 3_f32,
+        ));
+        assert_eq!(
+            normal,
+            Tuple::vector(
+                3_f32.sqrt() / 3_f32,
+                3_f32.sqrt() / 3_f32,
+                3_f32.sqrt() / 3_f32
+            )
+        );
+    }
+    
+    #[test]
+    fn the_normal_on_a_sphere_is_normalized() {
+        let sphere = Sphere::new(1);
+        let normal = sphere.normal_at(&Tuple::point(
+            3_f32.sqrt() / 3_f32,
+            3_f32.sqrt() / 3_f32,
+            3_f32.sqrt() / 3_f32,
+        ));
+        assert_eq!(normal, normal.normalize());
+    }
+    
+    #[test]
+    fn the_normal_on_a_sphere_translated_sphere() {
+        let mut sphere = Sphere::new(1);
+        sphere.set_transformation(Matrix4::identity().translate(0_f32, 1_f32, 0_f32));
+        let normal = sphere.normal_at(&Tuple::point(0_f32, 1.70711_f32, -0.70711_f32));
+        assert_eq!(normal, Tuple::vector(0_f32, 0.70711_f32, -0.70711_f32));
+    }
+    
+    #[test]
+    fn the_normal_on_a_sphere_transformed_sphere() {
+        let mut sphere = Sphere::new(1);
+        sphere.set_transformation(
+            Matrix4::identity()
+                .scale(1_f32, 0.5_f32, 1_f32)
+                .rotate_z(core::f32::consts::PI / 5_f32),
+        );
+        let normal = sphere.normal_at(&Tuple::point(
+            0_f32,
+            2_f32.sqrt() / 2_f32,
+            -2_f32.sqrt() / 2_f32,
+        ));
+        assert_eq!(normal, Tuple::vector(0_f32, 0.97014_f32, -0.24254_f32));
+    }
+    
 }

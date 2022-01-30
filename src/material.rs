@@ -1,18 +1,11 @@
-use crate::color::BLACK;
-use crate::color::WHITE;
-use crate::lighting;
 use crate::pattern::Pattern;
-use crate::pattern::StripePattern;
 use crate::Color;
-use crate::PointLight;
-use crate::Sphere;
-use crate::Tuple;
 
-pub const VACCUM_REFRACTIVE_INDEX: f32 = 1.0;
-pub const AIR_REFRACTIVE_INDEX: f32 = 1.00029;
-pub const WATER_REFRACTIVE_INDEX: f32 = 1.333;
-pub const GLASS_REFRACTIVE_INDEX: f32 = 1.5;
-pub const DIAMOND_REFRACTIVE_INDEX: f32 = 2.417;
+//pub const VACCUM_REFRACTIVE_INDEX: f32 = 1.0;
+//pub const AIR_REFRACTIVE_INDEX: f32 = 1.00029;
+//pub const WATER_REFRACTIVE_INDEX: f32 = 1.333;
+//pub const GLASS_REFRACTIVE_INDEX: f32 = 1.5;
+//pub const DIAMOND_REFRACTIVE_INDEX: f32 = 2.417;
 
 pub struct Material {
     pub ambient: f32,
@@ -44,43 +37,55 @@ impl Material {
     }
 }
 
-#[test]
-fn lighting_with_a_pattern_applied() {
-    let mut material = Material::default();
-    material.ambient = 1_f32;
-    material.diffuse = 0_f32;
-    material.specular = 0_f32;
-    material.pattern = StripePattern::new_box(WHITE, BLACK);
+#[cfg(test)]
+mod material_tests {
+    use crate::color::BLACK;
+    use crate::color::WHITE;
+    use crate::lighting;
+    use crate::material::Material;
+    use crate::pattern::StripePattern;
+    use crate::Color;
+    use crate::PointLight;
+    use crate::Sphere;
+    use crate::Tuple;
 
-    let eyev = Tuple::vector(0_f32, 0_f32, -1_f32);
-    let normalv = Tuple::vector(0_f32, 0_f32, -1_f32);
-    let light = PointLight::new(
-        Tuple::point(0_f32, 0_f32, -10_f32),
-        Color::new(1_f32, 1_f32, 1_f32),
-    );
-
-    let c1 = lighting(
-        &material,
-        &Sphere::new(0),
-        &light,
-        &Tuple::point(0.9_f32, 0_f32, 0_f32),
-        &eyev,
-        &normalv,
-        false,
-    );
-    let c2 = lighting(
-        &material,
-        &Sphere::new(0),
-        &light,
-        &Tuple::point(1.1_f32, 0_f32, 0_f32),
-        &eyev,
-        &normalv,
-        false,
-    );
-    let color = match &material.pattern {
-        Some(p) => p.color_at(&Tuple::point(0.9_f32, 0_f32, 0_f32)),
-        None => material.color,
-    };
-    assert_eq!(c1, WHITE);
-    assert_eq!(c2, BLACK);
+    #[test]
+    fn lighting_with_a_pattern_applied() {
+        let mut material = Material::default();
+        material.ambient = 1_f32;
+        material.diffuse = 0_f32;
+        material.specular = 0_f32;
+        material.pattern = StripePattern::new_box(WHITE, BLACK);
+        let eyev = Tuple::vector(0_f32, 0_f32, -1_f32);
+        let normalv = Tuple::vector(0_f32, 0_f32, -1_f32);
+        let light = PointLight::new(
+            Tuple::point(0_f32, 0_f32, -10_f32),
+            Color::new(1_f32, 1_f32, 1_f32),
+        );
+        let c1 = lighting(
+            &material,
+            &Sphere::new(0),
+            &light,
+            &Tuple::point(0.9_f32, 0_f32, 0_f32),
+            &eyev,
+            &normalv,
+            false,
+        );
+        let c2 = lighting(
+            &material,
+            &Sphere::new(0),
+            &light,
+            &Tuple::point(1.1_f32, 0_f32, 0_f32),
+            &eyev,
+            &normalv,
+            false,
+        );
+        let color = match &material.pattern {
+            Some(p) => p.color_at(&Tuple::point(0.9_f32, 0_f32, 0_f32)),
+            None => material.color,
+        };
+        assert_eq!(c1, WHITE);
+        assert_eq!(c2, BLACK);
+        assert_eq!(color, WHITE);
+    }
 }

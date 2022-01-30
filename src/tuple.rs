@@ -163,133 +163,138 @@ pub fn reflect(incomming: &Tuple, normal: &Tuple) -> Tuple {
     *incomming - *normal * 2_f32 * incomming.dot(normal)
 }
 
-#[test]
-fn sub_point_from_point_gives_vector() {
-    let p1 = Tuple::point(10.0_f32, 9.0_f32, 8.0_f32);
-    let p2 = Tuple::point(1.0_f32, 2.0_f32, 3.0_f32);
-    let result = p1 - p2;
-    let expected = Tuple::vector(9.0_f32, 7.0_f32, 5.0_f32);
-    assert_eq!(result, expected);
-}
+#[cfg(test)]
+mod tests {
 
-#[test]
-fn sub_vector_from_point_gives_point() {
-    let point = Tuple::point(10.0_f32, 9.0_f32, 8.0_f32);
-    let vector = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
-    let result = point - vector;
-    let expected = Tuple::point(9.0_f32, 7.0_f32, 5.0_f32);
-    assert_eq!(result, expected);
-}
+    use crate::tuple::{Tuple, reflect};
 
-#[test]
-fn add_vector_to_point_gives_point() {
-    let point = Tuple::point(10.0_f32, 9.0_f32, 8.0_f32);
-    let vector = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
-    let result = point + vector;
-    let expected = Tuple::point(11.0_f32, 11.0_f32, 11.0_f32);
-    assert_eq!(result, expected);
-}
-
-#[test]
-fn sub_vector_from_vector_gives_vector() {
-    let v1 = Tuple::vector(10.0_f32, 9.0_f32, 8.0_f32);
-    let v2 = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
-    let result = v1 - v2;
-    let expected = Tuple::vector(9.0_f32, 7.0_f32, 5.0_f32);
-    assert_eq!(result, expected);
-}
-
-#[test]
-fn add_vector_to_vector_gives_vector() {
-    let v1 = Tuple::vector(10.0_f32, 9.0_f32, 8.0_f32);
-    let v2 = Tuple::vector(1.0_f32, 2.0_f32, 4.0_f32);
-    let result = v1 + v2;
-    let expected = Tuple::vector(11.0_f32, 11.0_f32, 12.0_f32);
-    assert_eq!(result, expected);
-}
-
-#[test]
-fn negating_vector() {
-    let v1 = Tuple::vector(-10.0_f32, 9.0_f32, 8.0_f32);
-    let result = -v1;
-    let expected = Tuple::vector(10.0_f32, -9.0_f32, -8.0_f32);
-    assert_eq!(result, expected);
-}
-
-#[test]
-fn negating_point() {
-    let point = Tuple::point(10.0_f32, -9.0_f32, 8.0_f32);
-    let result = -point;
-    let mut expected = Tuple::point(-10.0_f32, 9.0_f32, -8.0_f32);
-    expected.w = -expected.w;
-    assert_eq!(result, expected);
-}
-
-#[test]
-fn multiply_point_by_scalar() {
-    let point = Tuple::point(10.0_f32, -9.0_f32, 8.0_f32);
-    let result1 = point * 2.0_f32;
-    let result2 = 2.0_f32 * point;
-    let mut expected = Tuple::point(20.0_f32, -18.0_f32, 16.0_f32);
-    expected.w = 2.0_f32;
-    assert_eq!(result1, expected);
-    assert_eq!(result2, expected);
-}
-
-#[test]
-fn dot_product_vector() {
-    let v1 = Tuple::vector(2.0_f32, 3.0_f32, 4.0_f32);
-    let v2 = Tuple::vector(2.0_f32, 1.0_f32, 3.0_f32);
-    assert_eq!(v1.dot(&v2), 19.0_f32);
-}
-
-#[test]
-fn magnitude_vector() {
-    let v1 = Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32);
-    assert_eq!(v1.mag(), 1.0_f32);
-
-    let v2 = Tuple::vector(0.0_f32, 1.0_f32, 0.0_f32);
-    assert_eq!(v2.mag(), 1.0_f32);
-
-    let v2 = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
-    assert_eq!(v2.mag(), 14.0_f32.sqrt());
-}
-
-#[test]
-fn normalize_vector() {
-    let v1 = Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32);
-    assert_eq!(v1.normalize(), Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32));
-
-    let v2 = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
-    assert_eq!(
-        v2.normalize(),
-        Tuple::vector(
-            1.0_f32 / 14.0_f32.sqrt(),
-            2.0_f32 / 14.0_f32.sqrt(),
-            3.0_f32 / 14.0_f32.sqrt()
-        )
-    );
-    assert_eq!(v2.normalize().mag(), 0.99999994_f32);
-}
-
-#[test]
-fn cross_product_vector() {
-    let v1 = Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32);
-    let v2 = Tuple::vector(0.0_f32, 0.0_f32, 1.0_f32);
-    assert_eq!(v2.cross(&v1), Tuple::vector(0.0_f32, 1.0_f32, 0.0_f32));
-    assert_eq!(v1.cross(&v2), Tuple::vector(0.0_f32, -1.0_f32, 0.0_f32));
-}
-
-#[test]
-fn reflect_vector_at_45deg() {
-    let v = Tuple::vector(1_f32, -1_f32, 0_f32);
-    let normal = Tuple::vector(0_f32, 1_f32, 0_f32);
-    assert_eq!(reflect(&v, &normal), Tuple::vector(1_f32, 1_f32, 0_f32));
-}
-
-#[test]
-fn reflect_vector_at_slanted_surface() {
-    let v = Tuple::vector(0_f32, -1_f32, 0_f32);
-    let normal = Tuple::vector(2_f32.sqrt()/2_f32, 2_f32.sqrt()/2_f32, 0_f32);
-    assert_eq!(reflect(&v, &normal), Tuple::vector(1_f32, 0_f32, 0_f32));
-}
+    #[test]
+    fn sub_point_from_point_gives_vector() {
+        let p1 = Tuple::point(10.0_f32, 9.0_f32, 8.0_f32);
+        let p2 = Tuple::point(1.0_f32, 2.0_f32, 3.0_f32);
+        let result = p1 - p2;
+        let expected = Tuple::vector(9.0_f32, 7.0_f32, 5.0_f32);
+        assert_eq!(result, expected);
+    }
+    
+    #[test]
+    fn sub_vector_from_point_gives_point() {
+        let point = Tuple::point(10.0_f32, 9.0_f32, 8.0_f32);
+        let vector = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
+        let result = point - vector;
+        let expected = Tuple::point(9.0_f32, 7.0_f32, 5.0_f32);
+        assert_eq!(result, expected);
+    }
+    
+    #[test]
+    fn add_vector_to_point_gives_point() {
+        let point = Tuple::point(10.0_f32, 9.0_f32, 8.0_f32);
+        let vector = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
+        let result = point + vector;
+        let expected = Tuple::point(11.0_f32, 11.0_f32, 11.0_f32);
+        assert_eq!(result, expected);
+    }
+    
+    #[test]
+    fn sub_vector_from_vector_gives_vector() {
+        let v1 = Tuple::vector(10.0_f32, 9.0_f32, 8.0_f32);
+        let v2 = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
+        let result = v1 - v2;
+        let expected = Tuple::vector(9.0_f32, 7.0_f32, 5.0_f32);
+        assert_eq!(result, expected);
+    }
+    
+    #[test]
+    fn add_vector_to_vector_gives_vector() {
+        let v1 = Tuple::vector(10.0_f32, 9.0_f32, 8.0_f32);
+        let v2 = Tuple::vector(1.0_f32, 2.0_f32, 4.0_f32);
+        let result = v1 + v2;
+        let expected = Tuple::vector(11.0_f32, 11.0_f32, 12.0_f32);
+        assert_eq!(result, expected);
+    }
+    
+    #[test]
+    fn negating_vector() {
+        let v1 = Tuple::vector(-10.0_f32, 9.0_f32, 8.0_f32);
+        let result = -v1;
+        let expected = Tuple::vector(10.0_f32, -9.0_f32, -8.0_f32);
+        assert_eq!(result, expected);
+    }
+    
+    #[test]
+    fn negating_point() {
+        let point = Tuple::point(10.0_f32, -9.0_f32, 8.0_f32);
+        let result = -point;
+        let mut expected = Tuple::point(-10.0_f32, 9.0_f32, -8.0_f32);
+        expected.w = -expected.w;
+        assert_eq!(result, expected);
+    }
+    
+    #[test]
+    fn multiply_point_by_scalar() {
+        let point = Tuple::point(10.0_f32, -9.0_f32, 8.0_f32);
+        let result1 = point * 2.0_f32;
+        let result2 = 2.0_f32 * point;
+        let mut expected = Tuple::point(20.0_f32, -18.0_f32, 16.0_f32);
+        expected.w = 2.0_f32;
+        assert_eq!(result1, expected);
+        assert_eq!(result2, expected);
+    }
+    
+    #[test]
+    fn dot_product_vector() {
+        let v1 = Tuple::vector(2.0_f32, 3.0_f32, 4.0_f32);
+        let v2 = Tuple::vector(2.0_f32, 1.0_f32, 3.0_f32);
+        assert_eq!(v1.dot(&v2), 19.0_f32);
+    }
+    
+    #[test]
+    fn magnitude_vector() {
+        let v1 = Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32);
+        assert_eq!(v1.mag(), 1.0_f32);
+    
+        let v2 = Tuple::vector(0.0_f32, 1.0_f32, 0.0_f32);
+        assert_eq!(v2.mag(), 1.0_f32);
+    
+        let v2 = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
+        assert_eq!(v2.mag(), 14.0_f32.sqrt());
+    }
+    
+    #[test]
+    fn normalize_vector() {
+        let v1 = Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32);
+        assert_eq!(v1.normalize(), Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32));
+    
+        let v2 = Tuple::vector(1.0_f32, 2.0_f32, 3.0_f32);
+        assert_eq!(
+            v2.normalize(),
+            Tuple::vector(
+                1.0_f32 / 14.0_f32.sqrt(),
+                2.0_f32 / 14.0_f32.sqrt(),
+                3.0_f32 / 14.0_f32.sqrt()
+            )
+        );
+        assert_eq!(v2.normalize().mag(), 0.99999994_f32);
+    }
+    
+    #[test]
+    fn cross_product_vector() {
+        let v1 = Tuple::vector(1.0_f32, 0.0_f32, 0.0_f32);
+        let v2 = Tuple::vector(0.0_f32, 0.0_f32, 1.0_f32);
+        assert_eq!(v2.cross(&v1), Tuple::vector(0.0_f32, 1.0_f32, 0.0_f32));
+        assert_eq!(v1.cross(&v2), Tuple::vector(0.0_f32, -1.0_f32, 0.0_f32));
+    }
+    
+    #[test]
+    fn reflect_vector_at_45deg() {
+        let v = Tuple::vector(1_f32, -1_f32, 0_f32);
+        let normal = Tuple::vector(0_f32, 1_f32, 0_f32);
+        assert_eq!(reflect(&v, &normal), Tuple::vector(1_f32, 1_f32, 0_f32));
+    }
+    
+    #[test]
+    fn reflect_vector_at_slanted_surface() {
+        let v = Tuple::vector(0_f32, -1_f32, 0_f32);
+        let normal = Tuple::vector(2_f32.sqrt()/2_f32, 2_f32.sqrt()/2_f32, 0_f32);
+        assert_eq!(reflect(&v, &normal), Tuple::vector(1_f32, 0_f32, 0_f32));
+    }}

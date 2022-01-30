@@ -29,7 +29,7 @@ impl Shape for Plane {
         self.inverse_transformation = inverse4(&t)
     }
 
-    fn normal_at(&self, world_point: &Tuple) -> Tuple {
+    fn normal_at(&self, _: &Tuple) -> Tuple {
         Tuple::vector(0_f32, 1_f32, 0_f32) // It's constant
     }
 
@@ -60,48 +60,57 @@ impl Shape for Plane {
     }
 }
 
-#[test]
-fn the_normal_of_a_plane_is_constant_everywhere() {
-    let plane = Plane::new(1);
-    let n1 = plane.normal_at(&Tuple::point(0_f32, 0_f32, 0_f32));
-    let n2 = plane.normal_at(&Tuple::point(10_f32, 0_f32, -10_f32));
-    let n3 = plane.normal_at(&Tuple::point(-5_f32, 0_f32, 150_f32));
+#[cfg(test)]
+mod tests {    
+    use crate::Plane;
+    use crate::Shape;
+    use crate::Tuple;
+    use crate::Ray;
 
-    assert_eq!(n1, Tuple::vector(0_f32, 1_f32, 0_f32));
-    assert_eq!(n2, Tuple::vector(0_f32, 1_f32, 0_f32));
-    assert_eq!(n3, Tuple::vector(0_f32, 1_f32, 0_f32));
+    #[test]
+    fn the_normal_of_a_plane_is_constant_everywhere() {
+        let plane = Plane::new(1);
+        let n1 = plane.normal_at(&Tuple::point(0_f32, 0_f32, 0_f32));
+        let n2 = plane.normal_at(&Tuple::point(10_f32, 0_f32, -10_f32));
+        let n3 = plane.normal_at(&Tuple::point(-5_f32, 0_f32, 150_f32));
+    
+        assert_eq!(n1, Tuple::vector(0_f32, 1_f32, 0_f32));
+        assert_eq!(n2, Tuple::vector(0_f32, 1_f32, 0_f32));
+        assert_eq!(n3, Tuple::vector(0_f32, 1_f32, 0_f32));
+    }
+    
+    #[test]
+    fn intersect_with_a_ray_parallel_to_the_plane() {
+        let plane = Plane::new(1);
+        let ray = Ray::new(Tuple::point(0_f32, 10_f32, 0_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
+        let xs = plane.intersections_by(&ray);
+        assert_eq!(xs.len(), 0);
+    }
+    
+    #[test]
+    fn intersect_with_a_coplanar_ray() {
+        let plane = Plane::new(1);
+        let ray = Ray::new(Tuple::point(0_f32, 0_f32, 0_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
+        let xs = plane.intersections_by(&ray);
+        assert_eq!(xs.len(), 0);
+    }
+    
+    #[test]
+    fn a_ray_intersecting_a_plane_from_above() {
+        let plane = Plane::new(1);
+        let ray = Ray::new(Tuple::point(0_f32, 1_f32, 0_f32), Tuple::vector(0_f32, -1_f32, 0_f32));
+        let xs = plane.intersections_by(&ray);
+        assert_eq!(xs.len(), 1);
+        assert_eq!(xs[0].t, 1_f32);
+    }
+    
+    #[test]
+    fn a_ray_intersecting_a_plane_from_below() {
+        let plane = Plane::new(1);
+        let ray = Ray::new(Tuple::point(0_f32, -1_f32, 0_f32), Tuple::vector(0_f32, 1_f32, 0_f32));
+        let xs = plane.intersections_by(&ray);
+        assert_eq!(xs.len(), 1);
+        assert_eq!(xs[0].t, 1_f32);
+    }    
 }
 
-#[test]
-fn intersect_with_a_ray_parallel_to_the_plane() {
-    let plane = Plane::new(1);
-    let ray = Ray::new(Tuple::point(0_f32, 10_f32, 0_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
-    let xs = plane.intersections_by(&ray);
-    assert_eq!(xs.len(), 0);
-}
-
-#[test]
-fn intersect_with_a_coplanar_ray() {
-    let plane = Plane::new(1);
-    let ray = Ray::new(Tuple::point(0_f32, 0_f32, 0_f32), Tuple::vector(0_f32, 0_f32, 1_f32));
-    let xs = plane.intersections_by(&ray);
-    assert_eq!(xs.len(), 0);
-}
-
-#[test]
-fn a_ray_intersecting_a_plane_from_above() {
-    let plane = Plane::new(1);
-    let ray = Ray::new(Tuple::point(0_f32, 1_f32, 0_f32), Tuple::vector(0_f32, -1_f32, 0_f32));
-    let xs = plane.intersections_by(&ray);
-    assert_eq!(xs.len(), 1);
-    assert_eq!(xs[0].t, 1_f32);
-}
-
-#[test]
-fn a_ray_intersecting_a_plane_from_below() {
-    let plane = Plane::new(1);
-    let ray = Ray::new(Tuple::point(0_f32, -1_f32, 0_f32), Tuple::vector(0_f32, 1_f32, 0_f32));
-    let xs = plane.intersections_by(&ray);
-    assert_eq!(xs.len(), 1);
-    assert_eq!(xs[0].t, 1_f32);
-}

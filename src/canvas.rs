@@ -32,7 +32,7 @@ pub fn set_pixel (canvas: &mut Canvas, x: usize, y: usize, color: Color) {
     canvas.pixels[y*canvas.width + x] = color;
 }
 
-fn canvas_to_ppm(canvas: &Canvas) -> String {
+pub fn canvas_to_ppm(canvas: &Canvas) -> String {
     let mut result = String::from(format!("P3\n{0} {1}\n255\n", canvas.width, canvas.height));    
     for y in 0..canvas.height {        
         let mut line = String::with_capacity(canvas.width*3 + (canvas.width*3-1));
@@ -70,46 +70,55 @@ fn limit(value: i32, min: i32, max: i32) -> i32 {
     value
 }
 
-#[test]
-fn init_canvas() {
-    let canvas = Canvas::new(5, 10);
-    assert_eq!(canvas.width, 5);
-    assert_eq!(canvas.height, 10);
+#[cfg(test)]
+mod canvas_tests {
 
-    let black = Color::new(0_f32, 0_f32, 0_f32);
-    for c in canvas.pixels.to_vec() {
-        assert_eq!(c, black);
+    use crate::canvas::{Canvas, set_pixel, get_pixel, canvas_to_ppm};
+    use crate::Color;
+
+    #[test]
+    fn init_canvas() {
+        let canvas = Canvas::new(5, 10);
+        assert_eq!(canvas.width, 5);
+        assert_eq!(canvas.height, 10);
+    
+        let black = Color::new(0_f32, 0_f32, 0_f32);
+        for c in canvas.pixels.to_vec() {
+            assert_eq!(c, black);
+        }
     }
-}
-
-
-#[test]
-fn set_pixel_test() {
-    let mut canvas = Canvas::new(5, 10);    
-
-    let red = Color::new(1_f32, 0_f32, 0_f32);
-    let x = 2;
-    let y = 3;    
-    set_pixel(&mut canvas, x, y, red);
-    let pixel = get_pixel(&canvas, x, y);
-    assert_eq!(pixel, red);
-}
-
-#[test]
-fn to_ppm() {
-    let mut canvas = Canvas::new(5, 3);    
-    set_pixel(&mut canvas, 0, 0, Color::new(1.5_f32, 0_f32, 0_f32));
-    set_pixel(&mut canvas, 2, 1, Color::new(0_f32, 0.5_f32, 0_f32));
-    set_pixel(&mut canvas, 4, 2, Color::new(-0.5_f32, 0_f32, 1_f32));
-    let result = canvas_to_ppm(&canvas);
-    let expected = 
-"P3
-5 3
-255
-255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 127 0 0 0 0 0 0 0
-0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n";
-
-    assert_eq!(result, expected);
+    
+    
+    #[test]
+    fn set_pixel_test() {
+        let mut canvas = Canvas::new(5, 10);    
+    
+        let red = Color::new(1_f32, 0_f32, 0_f32);
+        let x = 2;
+        let y = 3;    
+        set_pixel(&mut canvas, x, y, red);
+        let pixel = get_pixel(&canvas, x, y);
+        assert_eq!(pixel, red);
+    }
+    
+    #[test]
+    fn to_ppm() {
+        let mut canvas = Canvas::new(5, 3);    
+        set_pixel(&mut canvas, 0, 0, Color::new(1.5_f32, 0_f32, 0_f32));
+        set_pixel(&mut canvas, 2, 1, Color::new(0_f32, 0.5_f32, 0_f32));
+        set_pixel(&mut canvas, 4, 2, Color::new(-0.5_f32, 0_f32, 1_f32));
+        let result = canvas_to_ppm(&canvas);
+        let expected = 
+    "P3
+    5 3
+    255
+    255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 0 127 0 0 0 0 0 0 0
+    0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n";
+    
+        assert_eq!(result, expected);
+    }
+    
+    
 }
 

@@ -132,7 +132,7 @@ pub fn schlick<'a>(comps: &Computation<'a>) -> f32 {
 }
 
 #[cfg(test)]
-mod tests {
+mod ray_tests {
     use crate::math::EPSILON;
     use crate::ray::hit;
     use crate::ray::prepare_computations;
@@ -148,6 +148,7 @@ mod tests {
     use crate::Ray;
     use crate::Sphere;
     use crate::Tuple;
+    use crate::material::Material;
 
     impl Ray {
         pub fn default() -> Ray {
@@ -155,6 +156,20 @@ mod tests {
                 Tuple::point(0_f32, 0_f32, -5_f32),
                 Tuple::vector(0_f32, 0_f32, 1_f32),
             )
+        }
+    }
+
+    impl Sphere {
+        pub fn new_glass(id: u32) -> Sphere {
+            let mut sphere = Sphere {
+                id,
+                transformation: Matrix4::identity(),
+                inverse_transformation: Matrix4::identity(),
+                material: Material::default(),
+            };
+            sphere.material.transparency = 1.0_f32;
+            sphere.material.refractive_index = 1.5_f32;
+            sphere
         }
     }
 
