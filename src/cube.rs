@@ -30,14 +30,23 @@ impl Shape for Cube {
     }
 
     fn normal_at(&self, world_point: &Tuple) -> Tuple {
+        let point = &self.inverse_transformation * world_point;
         let max = f32::max(f32::max(point.x.abs(), point.y.abs()), point.z.abs());
+        
+        let normal: Tuple;
         if max == point.x.abs() {
-            return Tuple::vector(point.x, 0.0, 0.0);
+            normal = Tuple::vector(point.x, 0.0, 0.0);
         }
         else if max == point.y.abs() {
-            return Tuple::vector(0.0, point.y, 0.0);
+            normal = Tuple::vector(0.0, point.y, 0.0);
         }
-        Tuple::vector(0.0, 0.0, point.z)
+        else {
+            normal = Tuple::vector(0.0, 0.0, point.z);
+        }
+        
+        let mut world_normal = &self.inverse_transformation.transpose() * &normal;
+        world_normal.w = 0_f32; // Hack. Should actually find submatrix 3x3, and multiply with the inverse of that, to avoid messing with w. But this is fine and faster.
+        world_normal.normalize()
     }
 
     fn get_material(&self) -> &Material {

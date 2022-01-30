@@ -38,7 +38,7 @@ fn shade_hit(world: &World, computation: &Computation, remaining: u32) -> Color 
         &computation.object.get_material(),
         computation.object,
         &world.light,
-        &computation.point,
+        &computation.over_point,
         &computation.eye_direction,
         &computation.surface_normalv,
         is_shadowed,
@@ -222,7 +222,7 @@ mod tests {
         assert_eq!(is_shadowed(&world, &point), true);
     }
     #[test]
-    fn there_is_no_shadow_when_an_objet_is_behind_the_light() {
+    fn there_is_no_shadow_when_an_object_is_behind_the_light() {
         let world: World = World::default();
         let point = Tuple::point(-20.0, 20.0, -20.0);
         assert_eq!(is_shadowed(&world, &point), false);
@@ -388,7 +388,7 @@ mod tests {
             Intersection { t: 0.9899, obj: world.objects[0].as_ref()},
         );
         let comps = prepare_computations(&xs[2], &ray, &xs);
-        assert_eq!(refracted_color(&world, &comps, 5), Color::new(0.0, 0.99888, 0.04725));
+        assert_eq!(refracted_color(&world, &comps, 5), Color::new(0.0, 0.9978715, 0.047472));
     }
     #[test]
     fn shade_hit_with_a_transparent_material() {        
