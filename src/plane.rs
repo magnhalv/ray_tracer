@@ -37,6 +37,10 @@ impl Shape for Plane {
         &self.material
     }
 
+    fn get_mut_material(&mut self) -> &mut Material {
+        return &mut self.material;
+    }
+
     fn intersections_by<'a>(&'a self, ray: &Ray) -> Vec<Intersection<'a>> {
         let ray = transform(&ray, &self.inverse_transformation);        
         if ray.direction.y.abs() < EPSILON {

@@ -10,6 +10,7 @@ pub trait Shape: Sync + Send {
     fn get_inverse_transformation(&self) -> &Matrix4;
     fn normal_at(&self, world_point: &Tuple) -> Tuple;
     fn get_material(&self) -> &Material;
+    fn get_mut_material(&mut self) -> &mut Material;
     fn intersections_by<'a>(&'a self, ray: &Ray) -> Vec<Intersection<'a>>;
 }
 

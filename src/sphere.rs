@@ -42,6 +42,10 @@ impl Shape for Sphere {
         &self.material
     }
 
+    fn get_mut_material(&mut self) -> &mut Material {
+        return &mut self.material;
+    }
+
     fn intersections_by<'a>(&'a self, ray: &Ray) -> Vec<Intersection<'a>> {
         // A point on a spehere exists so that
         // (x - x0)^2 + (y - y0)^2 + (z - z0)^2 = r^2
