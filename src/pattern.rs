@@ -134,10 +134,31 @@ impl Pattern for CheckerPattern {
     }
 }
 
+pub struct TestPattern {
+    pub first: Color,
+    pub second: Color,
+    pub inverse_transformation: Matrix4,
+}
+
+impl Pattern for TestPattern {
+    fn color_at(&self, point: &Tuple) -> Color {
+        Color::new(point.x, point.y, point.z)
+    }
+    fn color_at_obj(&self, object: &dyn Shape, world_point: &Tuple) -> Color {
+        let obj_point = object.get_inverse_transformation() * world_point;
+        let pattern_point = &self.inverse_transformation * &obj_point;
+        self.color_at(&pattern_point)
+    }
+
+    fn set_transform(&mut self, transform: &Matrix4) {
+        self.inverse_transformation = inverse4(transform);
+    }
+}
+
 #[cfg(test)]
-mod pattern_tests {
+pub mod pattern_tests {
     use crate::color::{Color, BLACK, WHITE};
-    use crate::pattern::{GradientPattern, Pattern, RingPattern, StripePattern};
+    use crate::pattern::{GradientPattern, Pattern, RingPattern, StripePattern, TestPattern};
     use crate::sphere::Sphere;
     use crate::tuple::Tuple;
     use crate::Matrix4;
@@ -159,6 +180,17 @@ mod pattern_tests {
             }
         }
     }
+
+    impl TestPattern {
+        pub fn new() -> TestPattern {
+            TestPattern {
+                first: Color::new(0.0, 0.0, 0.0),
+                second: Color::new(0.0, 0.0, 0.0),
+                inverse_transformation: Matrix4::identity()
+            }
+        }
+    }
+
     #[test]
     fn stripe_pattern_alternates_only_in_x() {
         let pattern = StripePattern::test_default();

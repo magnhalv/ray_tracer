@@ -134,6 +134,8 @@ mod tests {
     use crate::color::{BLACK, WHITE, Color};
     use crate::plane::Plane;
     use crate::pattern::StripePattern;
+    use crate::pattern::pattern_tests;
+    use crate::pattern::TestPattern;
 
     impl World {
         pub fn default() -> Self {
@@ -284,7 +286,7 @@ mod tests {
         };
         let comps = prepare_computations(&intersection, &ray, &vec!());
         let color = reflected_color(&world, &comps, 1);
-        assert_eq!(color, Color::new(0.19205508, 0.24006882, 0.1440413));
+        assert_eq!(color, Color::new(0.19050309, 0.23812884, 0.14287731));
     }
     #[test]
     fn shade_hit_with_a_reflective_material() {
@@ -301,7 +303,7 @@ mod tests {
         };
         let comps = prepare_computations(&intersection, &ray, &vec!());
         let color = shade_hit(&world, &comps, 1);
-        assert_eq!(color, Color::new(0.87848055, 0.92649424, 0.83046675));
+        assert_eq!(color, Color::new(0.87692857, 0.9245543, 0.8293028));
     }
     #[test]
     fn color_at_with_mutually_reflective_surfaces_completes() {
@@ -376,7 +378,7 @@ mod tests {
     fn the_refracted_color_with_a_refracted_ray() {
         let mut world: World = World::default();
         world.objects[0].as_mut().get_mut_material().ambient = 1.0;
-        world.objects[0].as_mut().get_mut_material().pattern = StripePattern::new_box(WHITE, BLACK);
+        world.objects[0].as_mut().get_mut_material().pattern = Some(Box::new(TestPattern::new()));
         world.objects[1].as_mut().get_mut_material().transparency = 1.0;
         world.objects[1].as_mut().get_mut_material().refractive_index = 1.5;
         
