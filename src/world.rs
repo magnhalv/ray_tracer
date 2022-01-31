@@ -60,13 +60,17 @@ pub fn color_at(world: &World, ray: &Ray, remaining: u32) -> Color {
     let intersections = intersect_world(world, ray);
     let hit = hit(&intersections);
 
+    let color;
     match hit {
         Some(h) => {
+            //println!("Hit object: {}", h.obj.get_id());
             let comp = prepare_computations(h, ray, &intersections);
-            return shade_hit(world, &comp, remaining);
+            color = shade_hit(world, &comp, remaining);
         }
-        None => Color::new(0.0, 0.0, 0.0),
+        None => color = Color::new(0.0, 0.0, 0.0),
     }
+    //println!("Color {}, remaining: {}", color, remaining);
+    color
 }
 
 pub fn reflected_color<'a>(world: &'a World, comps: &Computation, remaining: u32) -> Color {

@@ -33,16 +33,16 @@ use lighting::PointLight;
 use matrix::Matrix4;
 use ray::Ray;
 use tuple::Tuple;
-//const DIM_X: usize = 2560;
-//const DIM_Y: usize = 1440;
-const DIM_X: usize = 800;
-const DIM_Y: usize = 540;
+const DIM_X: usize = 2560;
+const DIM_Y: usize = 1440;
+//const DIM_X: usize = 800;
+//const DIM_Y: usize = 540;
 
 fn main() {
     let world = generate_world();
 
     let mut camera = Camera::new(DIM_X, DIM_Y, PI / 3_f32);
-    let from = Tuple::point(25_f32, 10_f32, -30_f32);
+    let from = Tuple::point(25_f32, 20_f32, -60_f32);
     let to = Tuple::point(0_f32, 1_f32, 50_f32);
     let up = Tuple::vector(0_f32, 1_f32, 0_f32);
     camera.set_transform(&view_transform(&from, &to, &up));
@@ -81,8 +81,11 @@ fn main() {
     let hsize = camera.hsize;
     let vsize = camera.vsize;
 
-    //let new_world = Arc::new(world);
-    //let new_camera = Arc::new(camera);
+    let color = render_at(240, 148, &camera, &world);        
+    let color2 = render_at(32, 212, &camera, &world);
+
+    let new_world = Arc::new(world);
+    let new_camera = Arc::new(camera);
 
     let num_threads = 36;
     let mut thread_buffers: Vec<Arc<Mutex<Vec<u32>>>> = vec![];
@@ -91,12 +94,10 @@ fn main() {
     }
     let mut y = 0;
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        let color = render_at(38, 233, &camera, &world);        
-        let color2 = render_at(32, 212, &camera, &world);
         window
         .update_with_buffer(&color_buffer, DIM_X, DIM_Y)
         .unwrap();
-        /* let mut handles = vec![];
+        let mut handles = vec![];
 
         if y < vsize {
             for thread in 0..num_threads {
@@ -145,7 +146,7 @@ fn main() {
                     let color = render_at(p.0 as usize, p.1 as usize, &local_camera, &local_world);
 
                     println!(
-                        "Pos: {}, {}, Color: {}, {},{} ",
+                        "Pos: {}, {}, Color: {}, {}, {} ",
                         p.0, p.1, color.red, color.green, color.blue
                     );                
                     // 48, 203 - wrong
@@ -159,8 +160,8 @@ fn main() {
             window
                 .update_with_buffer(&color_buffer, DIM_X, DIM_Y)
                 .unwrap();
-        } */
-    }
+        } 
+    } 
 }
 
 fn limit(value: i32, min: u8, max: u8) -> u8 {

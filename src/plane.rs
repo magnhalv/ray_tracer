@@ -30,7 +30,11 @@ impl Shape for Plane {
     }
 
     fn normal_at(&self, _: &Tuple) -> Tuple {
-        Tuple::vector(0_f32, 1_f32, 0_f32) // It's constant
+        //let point = &self.inverse_transformation * world_point;
+        let normal = Tuple::vector(0_f32, 1_f32, 0_f32); // It's constant
+        let mut world_normal = &self.inverse_transformation.transpose() * &normal;
+        world_normal.w = 0_f32; // Hack. Should actually find submatrix 3x3, and multiply with the inverse of that, to avoid messing with w. But this is fine and faster.
+        world_normal.normalize()
     }
 
     fn get_material(&self) -> &Material {
